@@ -1,0 +1,254 @@
+
+<?php
+    session_start();
+
+    if(isset($_REQUEST["dangnhap"]))
+        include_once("view/dangnhap/index.php");
+    else{
+
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Quản Lý Giao Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: Arial, sans-serif;
+        }
+        .hero {
+            background-color: #007bff;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        .section {
+            padding: 40px 0;
+        }
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <h1>Chào mừng đến với Hệ Thống Giao Hàng</h1>
+        <p>Quản lý đơn hàng, nhân viên giao hàng, kho và COD nhanh chóng, hiệu quả</p>
+    </div>
+
+    <div class="container section">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="card p-3">
+                    <h4>Khách Hàng</h4>
+                    <p>Đặt hàng, theo dõi đơn, hủy đơn và xem lịch sử giao hàng</p>
+                    <?php
+                        if(!isset($_SESSION["dn"])){
+                            echo '<a href="index.php?dangnhap" class="btn btn-primary">Đăng Nhập</a>';
+                        }else{
+                            echo '<a href="index.php?dangxuat" class="btn btn-primary">Đăng xuất</a>';
+                        }
+                    ?>
+                    
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card p-3">
+                    <h4>Nhân Viên Giao Hàng</h4>
+                    <p>Xem danh sách đơn được phân công và cập nhật trạng thái giao</p>
+                    <a href="index.php?dangnhap" class="btn btn-primary">Đăng Nhập</a>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card p-3">
+                    <h4>Nhân Viên Kho</h4>
+                    <p>Quản lý hàng tồn, tạo phiếu nhập xuất kho</p>
+                    <a href="index.php?dangnhap" class="btn btn-primary">Đăng Nhập</a>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card p-3">
+                    <h4>Quản Lý / Điều Phối</h4>
+                    <p>Xem báo cáo, phân công nhân viên và kiểm soát COD</p>
+                    <a href="index.php?dangnhap" class="btn btn-primary">Đăng Nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 bg-light">
+        <p>&copy; 2025 Hệ Thống Quản Lý Giao Hàng. All rights reserved.</p>
+    </footer>
+<?php
+    if(isset($_REQUEST["dangxuat"]))
+        include_once("view/dangxuat/index.php");
+?>
+</body>
+</html>
+<?php
+    }
+?>
+
+<div class="card-container">
+        <div class="card">
+            <h3>Tổng số đơn hàng trong ngày</h3>
+            <p>98 đơn</p>
+        </div>
+        <div class="card">
+            <h3>Số lượng nhân viên hoạt động</h3>
+            <p>30 nugười</p>
+        </div>
+        <div class="card">
+            <h3>Tổng đơn hàng trong kho</h3>
+            <p>12 người</p>
+        </div>
+        <div class="card">
+            <h3>Doanh thu trong ngày</h3>
+            <p>500000k</p>
+        </div>
+    </div>
+
+    <?php
+session_start();
+// if (!isset($_SESSION["dn"])) {
+//     echo " <script>window.location.href='index.php'</script> ";
+// }
+include_once("control/c_dangnhap.php");
+$p = new C_dangnhap();
+$con = $p->get_lay1kh($_SESSION["tk"]);
+if($con){
+$r = $con->fetch_assoc();
+}else{
+    echo 'Có lỗi';
+    
+}
+?>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Khách Hàng - Quản lý giao hàng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f2f6fc;
+            margin: 0;
+        }
+
+        header {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav {
+            background: #2980b9;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        footer {
+            background: #ecf0f1;
+            text-align: center;
+            padding: 15px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #2c80b4;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Chào mừng, <?= $r["tenkh"] ?> 👋</h2>
+</header>
+
+<nav>
+    <a href="#">📦 Tạo đơn hàng</a>
+    <a href="#">🔍 Tra cứu đơn hàng</a>
+    <a href="#">📜 Lịch sử mua hàng</a>
+    <a href="#">👤 Tài khoản</a>
+    <a href="customer_home.php?dangxuat">🚪 Đăng xuất</a>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Thông báo</h3>
+        <p>Bạn có <strong>2</strong> đơn hàng đang chờ giao. Theo dõi trạng thái tại mục <strong>Tra cứu đơn hàng</strong>.</p>
+    </div>
+
+    <div class="card">
+        <h3>Gợi ý</h3>
+        <p>Bạn có thể dễ dàng tạo đơn hàng mới hoặc xem lại lịch sử các đơn trước.</p>
+        <button class="btn">Tạo đơn ngay</button>
+    </div>
+
+</div>
+<?php
+    if(isset($_REQUEST["dangxuat"]))
+        include_once("view/dangxuat/index.php");
+?>
+<footer>
+    © 2025 Ứng dụng Giao Hàng | Bảo mật thông tin tuyệt đối
+</footer>
+
+</body>
+</html>

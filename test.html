@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Đơn Hàng - Giao Hàng</title>
+
+    <!-- Thêm Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&load=async" async defer></script>
+
+    <style>
+        /* Giao diện tạo đơn hàng */
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6fc;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        
+        .map-container {
+            width: 50%;
+            height: 500px;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+        
+        .order-form {
+            width: 45%;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-form h3 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .confirm-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .confirm-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .add-product-btn {
+            background-color: #2ecc71;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .add-product-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .products-container {
+            margin-top: 20px;
+        }
+        
+        .product-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .product-group input,
+        .product-group select {
+            margin-right: 10px;
+            width: 30%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Phần bản đồ -->
+        <div id="map" class="map-container"></div>
+
+        <!-- Form Tạo đơn hàng -->
+        <div class="order-form">
+            <h3>Tạo Đơn Hàng</h3>
+
+            <!-- Địa chỉ giao hàng -->
+            <div class="form-group">
+                <label for="delivery_address">Địa chỉ giao hàng</label>
+                <input type="text" id="delivery_address" placeholder="Nhập địa chỉ người nhận" required>
+            </div>
+
+            <!-- Chi tiết địa chỉ -->
+            <div class="form-group">
+                <label for="details_address">Chi tiết địa chỉ</label>
+                <input type="text" id="details_address" placeholder="Số nhà, tổ dân phố" required>
+            </div>
+
+            <!-- Phí giao hàng -->
+            <div class="form-group">
+                <label for="delivery_fee">Phí giao hàng</label>
+                <input type="text" id="delivery_fee" value="10,000đ" readonly>
+            </div>
+
+            <!-- Thông tin người nhận -->
+            <div class="form-group">
+                <label for="recipient_name">Tên người nhận</label>
+                <input type="text" id="recipient_name" placeholder="Nhập tên người nhận" required>
+            </div>
+
+            <div class="form-group">
+                <label for="recipient_phone">Số điện thoại người nhận</label>
+                <input type="text" id="recipient_phone" placeholder="Nhập số điện thoại" required>
+            </div>
+
+            <!-- Loại hàng hóa -->
+            <div class="form-group">
+                <label for="item_type">Loại hàng hóa</label>
+                <select id="item_type" required>
+                    <option value="sản phẩm">Sản phẩm</option>
+                    <option value="gói hàng">Gói hàng</option>
+                </select>
+            </div>
+
+            <!-- Chi tiết hàng hóa -->
+            <div class="products-container">
+                <div class="product-group">
+                    <input type="text" placeholder="Nhập tên sản phẩm" required>
+                    <input type="number" placeholder="Nhập số lượng" required>
+                    <input type="text" placeholder="Nhập đơn giá" required>
+                </div>
+            </div>
+
+            <!-- Nút thêm sản phẩm -->
+            <button class="add-product-btn" id="addProductBtn">Thêm sản phẩm</button>
+
+            <!-- Phương thức thanh toán -->
+            <div class="form-group">
+                <label for="payment_method">Hình thức thanh toán</label>
+                <select id="payment_method" required>
+                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                    <option value="Transfer">Chuyển khoản</option>
+                </select>
+            </div>
+
+            <!-- Nút xác nhận -->
+            <button class="confirm-btn">Xác nhận đơn hàng</button>
+        </div>
+    </div>
+
+    <script>
+        // Hàm khởi tạo bản đồ
+        function initMap() {
+            const mapOptions = {
+                zoom: 12,
+                center: {
+                    lat: 10.8231,
+                    lng: 106.6297
+                },
+            };
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            // Tạo marker mới sử dụng AdvancedMarkerElement
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+                position: map.getCenter(),
+                map: map,
+                title: "Địa chỉ giao hàng"
+            });
+        }
+
+        // Thêm sản phẩm
+        document.getElementById('addProductBtn').addEventListener('click', function() {
+            const productGroup = document.createElement('div');
+            productGroup.classList.add('product-group');
+            productGroup.innerHTML = `
+                <input type="text" placeholder="Nhập tên sản phẩm" required>
+                <input type="number" placeholder="Nhập số lượng" required>
+                <input type="text" placeholder="Nhập đơn giá" required>
+            `;
+            document.querySelector('.products-container').appendChild(productGroup);
+        });
+    </script>
+</body>
+
+</html>
