@@ -146,23 +146,15 @@ if($con){
 <footer>
     © 2025 Ứng dụng Giao Hàng | Bảo mật thông tin tuyệt đối
 </footer>
+
 <!-- Nút tư vấn nổi -->
 <div id="chat-toggle" onclick="toggleChatbox()" 
      style="position: fixed; bottom: 20px; right: 20px; background: #007bff; color: white; border-radius: 50%; width: 60px; height: 60px; text-align: center; line-height: 60px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 1000;">
-    Liên hệ
+    Tư Vấn
 </div>
-
-<script>
-const currentUserId = <?= $_SESSION["tk"] ?>;
-const currentUserName = "<?= addslashes($r["tenkh"]) ?>";
-const currentUserRole = 0; // 0 = Khách hàng
-const targetId = 1; // Gửi tin cho Admin
-</script>
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <!-- Chatbox -->
 <?php include_once("view/chatbox/embed_customer.php"); ?>
-<script src="js/customer_chat.js"></script> <!-- Thay file chat.js bằng customer_chat.js -->
 
 </body>
 </html>
