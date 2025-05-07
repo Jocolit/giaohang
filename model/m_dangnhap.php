@@ -128,13 +128,13 @@
         }
 
         // tạo đơn hàng
-        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod){
+        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, cod)
-                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $cod)";
+                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, cod, thanhtoan)
+                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $cod, N'$thanhtoan')";
                 $rs = $con->query($sql);
                 if($rs){
                     $id = $con->insert_id;

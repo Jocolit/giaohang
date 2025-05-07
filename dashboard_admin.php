@@ -2,6 +2,7 @@
 session_start();
 
 // Kiểm tra đăng nhập (demo thôi, bạn có thể thay bằng kiểm tra thực tế)
+
 ?>
 
 <!DOCTYPE html>
@@ -190,13 +191,17 @@ session_start();
     $p = new C_dangnhap();
 
     $con = $p->get_nhanvien();
-
+    $conn = $p->get_nhanvien($_SESSION["tk"]);
+    if($conn)
+        $rr = $conn->fetch_assoc();
+    else
+        echo 'Có lỗi';
 ?>
 
 <body>
 
 <div class="sidebar">
-    <h2><a href="dashboard_admin.php">Admin</a></h2>
+    <h2><a href="dashboard_admin.php"><?= $rr["tennv"]; ?></a></h2>
     <a href="#">📦 Quản lý đơn hàng</a>
     <div class="dropdown">
         <a href="dashboard_admin.php?qlnv">🚚 Quản lý nhân viên</a>
@@ -209,6 +214,9 @@ session_start();
     <a href="#">🏬 Quản lý kho</a>
     <a href="#">💰 Quản lý COD</a>
     <a href="#">📊 Báo cáo thống kê</a>
+    <a href="javascript:void(0);" onclick="openAdminChatbox()">📩 Tin nhắn</a>
+
+
     <div class="logout">
         <a href="dashboard_admin.php?dangxuat">Đăng xuất</a>
     </div>

@@ -80,9 +80,9 @@
         }
 
         // tạo đơn hàng
-        public function get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod){
+        public function get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan){
             $p = new M_dangnhap();
-            $con = $p-> taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod);
+            $con = $p-> taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan);
             if($con){
                 if($con)
                     return $con;
