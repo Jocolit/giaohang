@@ -185,6 +185,7 @@
     <div id="layhang" class="order-list">
         <h3>Danh sách đơn cần lấy hàng</h3>
         <?php
+        if($con){
             while($r = $con->fetch_assoc()){
                 echo'
                     <div class="order-card">
@@ -197,12 +198,18 @@
                 <p>Địa chỉ: '.$r["diachi"].'</p>
             </div>
             <div class="status-btn">
-                <button class="success" onclick="alert("Đã lấy hàng!")">Đã lấy hàng</button>
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="madh_lay" value="'.$r["madh"].'">
+                    <button type="submit" class="success">Đã lấy hàng</button>
+                </form>
+
                 <button class="fail" onclick="alert("Không lấy được hàng")">Lỗi</button>
             </div>
         </div>
                 ';
             }
+        }else
+            echo'Không có đơn hàng';
         ?>
         
         <!-- Thêm nhiều đơn ở đây -->
@@ -211,6 +218,7 @@
     <div id="giaohang" class="order-list" style="display: none;">
         <h3>Danh sách đơn cần giao hàng</h3>
             <?php
+            if($conn){
                 while($rr = $conn ->fetch_assoc()){
                     echo'
                         <div class="order-card">
@@ -224,12 +232,17 @@
                 <p>COD: '.$rr["cod"].'</p>
             </div>
             <div class="status-btn">
-                <button class="success" onclick="alert("Đã giao thành công!")">Giao thành công</button>
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="madh_giao" value="'.$rr["madh"].'">
+                    <button type="submit" class="success">Giao thành công</button>
+                </form>
                 <button class="fail" onclick="alert("Không giao được")">Lỗi</button>
             </div>
         </div>
                     ';
                 }
+            }else
+                echo'Không có đơn hàng';
             ?>
 
     
@@ -242,3 +255,15 @@
 
 </body>
 </html>
+<?php
+    if (isset($_POST["madh_lay"])) {
+        $madh = $_POST["madh_lay"];
+        $p->get_capnhat_trangthai($madh, "Đang giao");
+        echo "<script>location.href='dashboard_shipper.php?lay';</script>";
+    }
+    if (isset($_POST["madh_giao"])) {
+        $madh = $_POST["madh_giao"];
+        $p->get_capnhat_trangthai($madh, "Đã giao");
+        echo "<script>location.href='dashboard_shipper.php?giao';</script>";
+    } 
+?>

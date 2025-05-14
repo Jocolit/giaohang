@@ -175,9 +175,10 @@ if($con){
         $sdtnn = $_REQUEST["txtsdtnn"];
         $diachinn = $_REQUEST["txtdiachinn"];
         $tinhtranghd = 'Chờ lấy';
+        $thanhtoan = 'Chưa thanh toán';
         $tongtien = 0;
         $cod = 0;
-        $tao = $p->get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtranghd, $tongtien, $cod);
+        $tao = $p->get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtranghd, $tongtien, $cod, $thanhtoan);
         if($tao){
             foreach($_REQUEST["txtsp"] as $index => $tensp){
                 $sl = $_REQUEST["txtsl"][$index];
@@ -190,7 +191,14 @@ if($con){
 
             }
             $p->get_capnhatdh($tao, $tongtien);
-            echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng');</script>";
+            // echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng');</script>";
+            // Xử lý theo phương thức thanh toán
+            if ($_POST['payment_method'] == "Transfer") {
+                echo "<script>window.location.href='view/thanh_toan/payment.php?madh={$tao}'</script>";
+            } else {
+                echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng');</script>";
+            }
+
         }
         else
             echo "<script>alert('Vui lòng tạo lại đơn hàng');</script>";

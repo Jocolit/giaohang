@@ -83,37 +83,67 @@
         }
     </style>
 </head>
-
+<?php
+    $p = new C_dangnhap();
+    $dstk = $p->get_dangnhap();
+?>
 <body>
 <br> <br>
 <div class="thêm-nv-container">
     <div class="thêm-nv-header">Thêm Nhân Viên</div>
-    <form method="POST" action="process_add_employee.php">
+    <form method="POST" action="">
+        <!-- Tên nhân viên -->
         <div class="thêm-nv-form-group">
             <label for="name">Tên nhân viên</label>
             <input type="text" id="name" name="name" required placeholder="Nhập tên nhân viên">
         </div>
 
+        <!-- Số điện thoại -->
+        <div class="thêm-nv-form-group">
+            <label for="phone">Số điện thoại</label>
+            <input type="text" id="phone" name="phone" required placeholder="Nhập số điện thoại">
+        </div>
+
+        <!-- Chức vụ -->
         <div class="thêm-nv-form-group">
             <label for="role">Chức vụ</label>
             <select id="role" name="role" required>
                 <option value="">Chọn chức vụ</option>
-                <option value="Shipper">Shipper</option>
-                <option value="Quản lý kho">Quản lý kho</option>
-                <option value="Điều phối viên">Điều phối viên</option>
+                <option value="1">Shipper</option>
+                <option value="2">Điều phối viên</option>
+                <option value="3">Quản lý kho</option>
+                
             </select>
         </div>
 
-        <div class="thêm-nv-form-group">
+        <!-- <div class="thêm-nv-form-group">
             <label for="status">Trạng thái</label>
             <select id="status" name="status" required>
                 <option value="">Chọn trạng thái</option>
-                <option value="Hoạt động">Hoạt động</option>
-                <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                <option value="Đang làm">Đang làm</option>
+                <option value="Nghỉ">Nghỉ</option>
             </select>
+        </div> -->
+
+        <!-- Hình ảnh -->
+        <div class="thêm-nv-form-group">
+            <label for="image">Hình ảnh</label>
+            <input type="file" id="image" name="image" accept="image/*" >
         </div>
 
-        <button type="submit" class="thêm-nv-button">Thêm Nhân Viên</button>
+        <!-- Tên đăng nhập -->
+        <div class="thêm-nv-form-group">
+            <label for="username">Tên đăng nhập</label>
+            <input type="text" id="username" name="username" required placeholder="Nhập tên đăng nhập">
+        </div>
+
+        <!-- Mật khẩu -->
+        <div class="thêm-nv-form-group">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu">
+        </div>
+
+        <button type="submit" class="thêm-nv-button" name="btnthem">Thêm Nhân Viên</button>
     </form>
 
     <div class="thêm-nv-back-button">
@@ -123,3 +153,41 @@
 
 </body>
 </html>
+
+<?php
+        include_once("control/c_dangnhap.php");
+        $p = new C_dangnhap();
+        $dstk = $p->get_dangnhap();
+        
+    if(isset($_REQUEST["btnthem"])){
+        
+        $tendn = $_REQUEST["username"];
+        $mk = $_REQUEST["password"];
+        $mota = "Nhân viên";
+        $loaitk = 2;
+        if($dstk){
+            while($r = $dstk->fetch_assoc()){
+                if($r["tendn"] === $tendn){
+                    echo "<script>alert('Tên đăng nhập đã tồn tại');</script>";
+                    return;
+                }
+            }
+        }
+        $matk = $p->get_dangky($tendn, $mk, $mota, $loaitk);
+        if($matk){
+            $ten = $_REQUEST["name"];
+            $sdt = $_REQUEST["phone"];
+            $hinh = $_REQUEST["image"];
+            $trangthai = "Đang làm";
+            $cv = $_REQUEST["role"];
+            $rs = $p->get_themnv($ten, $sdt, $hinhanh, $trangthai, $matk, $cv);
+            if($rs){
+                echo "<script>alert('Thêm nhân viên thành công');</script>";
+                echo '<script>window.location.href="dashboard_admin.php?qlnv"</script>';
+            }else{
+                echo "<script>alert('Lỗi');</script>";
+            }
+        }
+        
+    }
+?>

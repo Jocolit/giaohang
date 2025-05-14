@@ -88,7 +88,7 @@
         $mota = "Sử dụng cho khách hàng";
 
         while($r = $con->fetch_assoc()){
-            if($r["tendn"] == $tendn || $r["sdt"] == $sdt){
+            if($r["tendn"] === $tendn || $r["sdt"] === $sdt){
                 echo "<script>alert('Tài khoản đã tồn tại');</script>";
                 return;
             }

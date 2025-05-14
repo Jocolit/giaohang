@@ -1,41 +1,74 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const mysql = require('mysql2');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*"
+const io = new Server(server, { cors: { origin: "*" } });
+
+// Kết nối database
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "giaohang"
+});
+
+db.connect((err) => {
+    if (err) {
+        console.error("Database connection error:", err);
+    } else {
+        console.log("Database connected successfully!");
     }
 });
 
-// Tạm lưu map userId ↔ socketId
-const userSockets = {};
+io.on('connection', (socket) => {
+    console.log('Client connected');
 
-io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
+    // Join đúng room khách hàng
+    socket.on('join room', (data) => {
+        const { room } = data;
+        const roomIdString = String(room); // **Sửa đổi:** Chuyển đổi thành chuỗi
+        socket.join(roomIdString);
+        console.log(`Socket joined room: ${roomIdString}`);
 
-    // Bước 1: client gửi tên (userId) khi kết nối
-    socket.on("register", (data) => {
-        const userId = data.userId;
-        userSockets[userId] = socket.id;
-
-        const room = "room_" + userId;
-        socket.join(room); // vào phòng riêng
-        console.log(`User ${userId} joined ${room}`);
-    });
-
-    // Nhận và chuyển tin nhắn theo room
-    socket.on("chat message", (data) => {
-        const room = data.toRoom; // toRoom: "room_123"
-        io.to(room).emit("chat message", {
-            user: data.user,
-            message: data.message
+        db.query("SELECT user, message FROM chat_messages WHERE room = ? ORDER BY created_at ASC", [roomIdString], (err, results) => {
+            if (!err) {
+                socket.emit('history', results);
+            }
         });
     });
 
-    socket.on("disconnect", () => {
-        console.log("Client disconnected");
+    socket.on('chat message', (data) => {
+        const { room, user, message } = data;
+        const roomIdString = String(room); // **Sửa đổi:** Chuyển đổi thành chuỗi
+
+        db.query("INSERT INTO chat_messages (room, user, message) VALUES (?, ?, ?)", [roomIdString, user, message]);
+
+        console.log("Server phát tin nhắn:", { room: roomIdString, user, message });
+        io.to(roomIdString).emit('chat message', { room: roomIdString, user, message }); // **Sửa đổi:** Phát với room là chuỗi
     });
+
+    // ----- Thêm phần QR giả lập thanh toán -----
+
+    socket.on('payment success', (data) => {
+        const { orderId } = data;
+        console.log(`Đơn hàng ${orderId} đã thanh toán!`);
+
+        // Cập nhật DB
+        db.query("UPDATE donhang SET thanhtoan = 'Đã thanh toán' WHERE madh = ?", [orderId]);
+
+        // Gửi real-time cho tất cả
+        io.emit('payment update', { orderId: orderId, status: 'Đã thanh toán' });
+    });
+
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
 });

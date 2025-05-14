@@ -89,7 +89,7 @@
 
 <div class="sidebar">
     <h2>Điều phối</h2>
-    <a href="#">📋 Danh sách đơn hàng</a>
+    <a href="dashboard_dieuphoi.php?dsdh">📋 Danh sách đơn hàng</a>
     <a href="#">🧍‍♂️ Phân công shipper</a>
     <a href="#">💸 Quản lý COD</a>
     <a href="#">📊 Báo cáo hiệu suất</a>
@@ -119,7 +119,14 @@
             <p>87%</p>
         </div>
     </div>
+    <br><br>
+    <?php
+        if(isset($_REQUEST["dsdh"]))
+            include_once("view/phancongdh/index.php");
+    ?>
+
 </div>
+
 <?php
     if(isset($_REQUEST["dangxuat"]))
         include_once("view/dangxuat/index.php");

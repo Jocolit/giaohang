@@ -1,43 +1,150 @@
 const adminSocket = io("http://localhost:3000");
-let unreadCount = 0;
 
-adminSocket.on("chat message", function(data) {
-    // Hiển thị popup nếu đang mở
-    const box = document.getElementById("admin-chat-messages");
-    const div = document.createElement("div");
-    div.innerHTML = `<strong style="color:#e74c3c">${data.user}:</strong> ${data.message}`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
+let currentRoomId = null;
+let currentCustomerName = null;
+let chatDetailVisible = false;
 
-    // Nếu popup đang ẩn → tăng số thông báo
-    const popup = document.getElementById("admin-chatbox-popup");
-    if (popup.style.display === "none") {
-        unreadCount++;
-        const badge = document.getElementById("admin-unread-count");
-        badge.textContent = unreadCount;
-        badge.style.display = "inline-block";
+// Khi mở danh sách khách
+function openAdminChatbox() {
+    document.getElementById("admin-chatbox-full").style.display = "block";
+
+    fetch("get_chat_users.php")
+        .then(response => response.json())
+        .then(users => {
+            const list = document.getElementById("chat-conversation-list");
+            list.innerHTML = "";
+
+            if (users.length === 0) {
+                document.getElementById("no-conversation").style.display = "block";
+                return;
+            }
+            document.getElementById("no-conversation").style.display = "none";
+
+            users.forEach(user => {
+                const item = document.createElement("div");
+                item.style.padding = "10px";
+                item.style.borderBottom = "1px solid #ddd";
+                item.style.cursor = "pointer";
+                item.innerHTML = `
+          <div><strong>${user.user}</strong></div>
+          <div style="font-size:12px;color:#888;">(${user.room})</div>
+        `;
+                item.addEventListener("click", () => {
+                    openChatDetail(user.room, user.user);
+                });
+                list.appendChild(item);
+            });
+        });
+}
+
+// Khi mở chi tiết 1 khách
+function openChatDetail(roomId, customerName) {
+    document.getElementById("chat-detail-popup").style.display = "block";
+    chatDetailVisible = true;
+
+    if (currentRoomId && currentRoomId !== String(roomId)) { // **Sửa đổi:** So sánh với chuỗi
+        adminSocket.emit('leave room', { room: currentRoomId });
     }
-});
 
-function toggleAdminChatbox() {
-    const popup = document.getElementById("admin-chatbox-popup");
-    popup.style.display = (popup.style.display === "none") ? "block" : "none";
+    currentRoomId = String(roomId); // **Sửa đổi:** Gán currentRoomId là chuỗi
+    currentCustomerName = customerName;
 
-    // Nếu vừa mở → reset badge
-    if (popup.style.display === "block") {
-        unreadCount = 0;
-        document.getElementById("admin-unread-count").style.display = "none";
+    adminSocket.emit("join room", { room: currentRoomId });
+
+    const box = document.getElementById("chat-detail-messages");
+    box.innerHTML = "<i>Đang tải hội thoại...</i>";
+    // Thêm đoạn này để xóa thông báo
+    const chatItem = Array.from(document.getElementById("chat-conversation-list").children)
+        .find(item => item.innerHTML.includes(`(${roomId})`));
+    if (chatItem && chatItem.querySelector("span")) {
+        chatItem.querySelector("span").remove();
     }
 }
 
+// Khi nhận lịch sử chat
+adminSocket.on("history", (messages) => {
+    const box = document.getElementById("chat-detail-messages");
+    box.innerHTML = "";
+    messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${msg.user}:</strong> ${msg.message}`;
+        box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+});
+
+// Khi nhận tin nhắn mới
+// adminSocket.on("chat message", (data) => {
+//     console.log("Admin nhận tin nhắn:", data);
+//     console.log("currentRoomId:", currentRoomId);
+//     console.log("data.room:", data.room);
+//     if (currentRoomId === data.room) { // **Sửa đổi:** So sánh chuỗi với chuỗi (===)
+//         const box = document.getElementById("chat-detail-messages");
+//         const div = document.createElement("div");
+//         div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
+//         box.appendChild(div);
+//         box.scrollTop = box.scrollHeight;
+//     } else {
+//         console.log("Tin nhắn mới đến từ room khác:", data.room);
+//     }
+// });
+adminSocket.on("chat message", (data) => {
+    if (!chatDetailVisible || currentRoomId !== data.room) {
+        // Hiển thị thông báo (ví dụ: thêm badge)
+        const chatItem = Array.from(document.getElementById("chat-conversation-list").children)
+            .find(item => item.innerHTML.includes(`(${data.room})`));
+        if (chatItem && !chatItem.querySelector("span")) {
+            const badge = document.createElement("span");
+            badge.innerText = "!";
+            badge.style.backgroundColor = "red";
+            badge.style.color = "white";
+            badge.style.borderRadius = "50%";
+            badge.style.padding = "2px 5px";
+            badge.style.marginLeft = "5px";
+            chatItem.appendChild(badge);
+        }
+    } else {
+        // Hiển thị tin nhắn như bình thường
+        const box = document.getElementById("chat-detail-messages");
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+});
+
+adminSocket.on('connect', () => {
+    console.log('Admin client connected');
+    if (currentRoomId) {
+        adminSocket.emit("join room", { room: currentRoomId });
+        console.log(`Admin re-joined room: ${currentRoomId}`);
+        // Có thể load lại lịch sử chat sau khi kết nối lại nếu cần
+    }
+});
+
+// Gửi tin nhắn
 function sendAdminMessage() {
     const input = document.getElementById("admin-chat-input");
     const msg = input.value.trim();
-    if (msg !== "") {
+    if (msg !== "" && currentRoomId) {
         adminSocket.emit("chat message", {
-            user: "Admin",
+            room: currentRoomId,
+            user: "Quản lý",
             message: msg
         });
         input.value = "";
     }
 }
+
+// Đóng popup
+function closeAdminChatbox() {
+    document.getElementById("admin-chatbox-full").style.display = "none";
+}
+
+function closeChatDetail() {
+    document.getElementById("chat-detail-popup").style.display = "none";
+    chatDetailVisible = false;
+}
+adminSocket.on("payment update", (data) => {
+    alert(`Đơn hàng ${data.orderId} đã được thanh toán!`);
+});

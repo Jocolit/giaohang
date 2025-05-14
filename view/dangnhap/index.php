@@ -12,6 +12,7 @@ if (isset($_REQUEST["btndn"])) {
         $loaitk = $r["loaitk"];
         $matk = $r["matk"];
         $_SESSION["dn"] = 1;
+        $_SESSION["loaitk"] = $r["loaitk"];
         if($loaitk == 3){
             $_SESSION["tk"] = $r["matk"];
             echo "<script>alert('Đăng nhập thành công');</script>";
@@ -24,6 +25,7 @@ if (isset($_REQUEST["btndn"])) {
             $conn = $p->get_nhanvien($matk);
             $rr = $conn ->fetch_assoc();
             $macv = $rr["macv"];
+            $_SESSION["macv"] = $rr["macv"];
             if($macv == 1){
                 $_SESSION["nv"] = $rr["manv"];
                 echo "<script>alert('Đăng nhập thành công');</script>";

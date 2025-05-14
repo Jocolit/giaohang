@@ -5,7 +5,19 @@
         include_once("view/dangnhap/index.php");
     elseif(isset($_REQUEST["dangky"])){
         include_once("view/dangky/index.php");
-    }else{
+    }elseif(isset($_SESSION["dn"]) && $_SESSION["loaitk"] == 3){
+        echo " <script>window.location.href='customer_home.php'</script>";
+    }elseif(isset($_SESSION["dn"]) && $_SESSION["loaitk"] == 1){
+        echo " <script>window.location.href='dashboard_admin.php'</script>";
+    }elseif(isset($_SESSION["dn"]) && $_SESSION["loaitk"] == 2){
+        if($_SESSION["macv"] == 1)
+            echo " <script>window.location.href='dashboard_shipper.php'</script>";
+        elseif($_SESSION["macv"] == 2)
+            echo " <script>window.location.href='dashboard_dieuphoi.php'</script>";
+        elseif($_SESSION["macv"] == 3)
+            echo " <script>window.location.href='dashboard_kho.php'</script>";
+    }
+    else{
 ?>
 <!DOCTYPE html>
 <html lang="vi">

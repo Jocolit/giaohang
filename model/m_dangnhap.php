@@ -1,22 +1,29 @@
 <?php
     include_once("ketnoi.php");
     class M_dangnhap{
-        public function dangnhap($tendn, $mk){
+        public function dangnhap($tendn = null, $mk = null){
             $p = new Ketnoi();
             $con = $p->ketnoi();
-            $con -> set_charset("utf8");
-            
-            if($con){
-                $sql = "select * from taikhoan where tendn = '$tendn' and matkhau = '$mk' ";
+            $con->set_charset("utf8");
+        
+            if ($con) {
+                if ($tendn !== null && $mk !== null) {
+                    // Nếu có tên đăng nhập và mật khẩu
+                    $sql = "SELECT * FROM taikhoan WHERE tendn = '$tendn' AND matkhau = '$mk'";
+                } else {
+                    // Nếu không có tên đăng nhập và mật khẩu, lấy tất cả dữ liệu
+                    $sql = "SELECT * FROM taikhoan";
+                }
+        
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;
-            }else{
+            } else {
                 echo "Lỗi kết nối";
                 return false;
             }
         }
-
+        
         // lấy danh sách nhân viên
         public function nhanvien($matk = null){
             $p = new Ketnoi();
@@ -34,7 +41,8 @@
                 } else {
                     // Lấy toàn bộ danh sách nhân viên
                     $sql = "SELECT * FROM nhanvien nv 
-                            JOIN chucvu cv ON nv.macv = cv.macv";
+                            JOIN chucvu cv ON nv.macv = cv.macv 
+                            WHERE nv.macv != 4 AND nv.trangthai like N'Đang làm';";
                     $stmt = $con->prepare($sql);
                 }
         
@@ -48,7 +56,77 @@
             }
         }
         
-        
+        // thêm nhân viên
+        public function themnv($tennv, $sdt, $hinhanh, $trangthai, $matk, $macv){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            if($con){
+                $sql = "insert into nhanvien(tennv, sdt, hinhanh, trangthai, matk, macv)
+                        values(N'$tennv', '$sdt', '$hinhanh', N'$trangthai', $matk, $macv)";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
+        // cập nhật nhân viên
+        public function capnhatnv($manv, $tennv, $sdt, $cv, $hinhanh){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "update nhanvien 
+                        set tennv = N'$tennv', sdt = '$sdt', macv = $cv, hinhanh = '$hinhanh'
+                        where manv = $manv";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
+        // chuyển trạng thái nhân viên
+        public function xoanv($manv, $trangthai){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "update nhanvien 
+                        set trangthai = N'$trangthai'
+                        where manv = $manv";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
+        // Chỉ lấy nhân viên là shipper
+        public function dsshiper(){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "select * from nhanvien where macv = 1";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
         // lấy khách hàng, nếu truyền mã thì lấy 1 theo mã tk
         public function lay1kh($matk = null){
             $p = new Ketnoi();
@@ -78,13 +156,48 @@
             }
         }
 
-        public function dsdonhang(){
+        // danh sách đơn hàng, nếu truyền mã thì lấy chitiet
+        public function dsdonhang($madh = null){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            
+            if ($con) {
+                if ($madh !== null) {
+                    // Lấy đơn hàng theo mã đơn hàng
+                    $sql = "SELECT * 
+                            FROM donhang dh 
+                            INNER JOIN chitietdh ct ON dh.madh = ct.madh 
+                            WHERE dh.madh = ?";
+                    $stmt = $con->prepare($sql);
+                    $stmt->bind_param("i", $madh); // "i" cho integer
+                } else {
+                    // Lấy tất cả đơn hàng
+                    $sql = "SELECT DISTINCT dh.*, kh.tenkh, kh.sdt, kh.diachi
+                            FROM donhang dh
+                            LEFT JOIN chitietdh ct ON dh.madh = ct.madh
+                            LEFT JOIN khachhang kh ON dh.makh = kh.makh;";
+                    $stmt = $con->prepare($sql);
+                }
+                
+                $stmt->execute();
+                $rs = $stmt->get_result();
+                $p->dongketnoi($con);
+                return $rs;
+            } else {
+                echo 'Lỗi kết nối';
+                return false;
+            }
+        }        
+
+        // danh sách đơn hàng chưa được phân công
+        public function dsdonhangpc(){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             
             if($con){
-                $sql = "select * from donhang dh inner join chitietdh ct on dh.madh = ct.madh";
+                $sql = "select * from donhang dh join khachhang kh on dh.makh=kh.makh where dh.manv IS NULL";
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;
@@ -111,13 +224,14 @@
             }
         }
 
+        // đơn hàng theo nhân viên giao
         public function donhangnvgiao($manv){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             
             if($con){
-                $sql = "select * from donhang dh inner join khachhang kh on dh.makh = kh.makh where dh.manv = $manv and tinhtrangdh like 'Nhập kho'";
+                $sql = "select * from donhang dh inner join khachhang kh on dh.makh = kh.makh where dh.manv = $manv and tinhtrangdh like 'Đang giao'";
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;
@@ -127,14 +241,56 @@
             }
         }
 
+        //phân công nhân viên
+        public function phancong_tudong($madh, $manv){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            if($con){
+                $sql = "UPDATE donhang SET manv = $manv WHERE madh = $madh";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+        
+        // hàm chọn nhân viên có ít hóa đơn nhất
+        public function lay_nhanvien_it_nhat(){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            if($con){
+                $sql = "SELECT nv.manv, COUNT(dh.madh) AS tong_don
+                        FROM nhanvien nv
+                        LEFT JOIN donhang dh ON nv.manv = dh.manv AND dh.tinhtrangdh IN ('Chờ lấy')
+                        WHERE nv.macv = 1
+                        GROUP BY nv.manv
+                        ORDER BY tong_don ASC
+                        LIMIT 1";
+                $rs = $con->query($sql);
+                if ($rs && $rs->num_rows > 0) {
+                    return $rs->fetch_assoc();
+                }
+                $p->dongketnoi($con);
+                return false;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+        
+
         // tạo đơn hàng
-        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod){
+        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, cod)
-                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $cod)";
+                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, cod, thanhtoan)
+                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $cod, N'$thanhtoan')";
                 $rs = $con->query($sql);
                 if($rs){
                     $id = $con->insert_id;
@@ -165,6 +321,26 @@
                 return false;
             }
         }
+
+        // cập nhật trạng thái đơn hàng
+        public function capnhat_trangthai($madh, $trangthai){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            if($con){
+                $sql = "UPDATE donhang SET tinhtrangdh = ? WHERE madh = ?";
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param("si", $trangthai, $madh);
+                $stmt->execute();
+                $p->dongketnoi($con);
+                return true;
+            } else {
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+        
+
         // tạo chi tiết đơn hàng
         public function taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){
             $p = new Ketnoi();

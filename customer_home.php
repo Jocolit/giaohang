@@ -122,7 +122,7 @@ if($con){
     <div class="card">
         <h3>Gợi ý</h3>
         <p>Bạn có thể dễ dàng tạo đơn hàng mới hoặc xem lại lịch sử các đơn trước.</p>
-        <a href="create_order.php" class="btn">Tạo đơn ngay</a>
+        <a href="customer_home.php?taodh" class="btn">Tạo đơn ngay</a>
     </div>
 
     <div class="card">
@@ -150,7 +150,7 @@ if($con){
 <!-- Nút tư vấn nổi -->
 <div id="chat-toggle" onclick="toggleChatbox()" 
      style="position: fixed; bottom: 20px; right: 20px; background: #007bff; color: white; border-radius: 50%; width: 60px; height: 60px; text-align: center; line-height: 60px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 1000;">
-    Tư Vấn
+    Liên hệ
 </div>
 
 <!-- Chatbox -->
