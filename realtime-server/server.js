@@ -52,22 +52,39 @@ io.on('connection', (socket) => {
 
     // ----- Thêm phần QR giả lập thanh toán -----
 
-    socket.on('payment success', (data) => {
-        const { orderId } = data;
-        console.log(`Đơn hàng ${orderId} đã thanh toán!`);
+    // socket.on('payment success', (data) => {
+    //     const { orderId } = data;
+    //     console.log(`Đơn hàng ${orderId} đã thanh toán!`);
 
-        // Cập nhật DB
-        db.query("UPDATE donhang SET thanhtoan = 'Đã thanh toán' WHERE madh = ?", [orderId]);
+    //     // Cập nhật DB
+    //     db.query("UPDATE donhang SET thanhtoan = 'Đã thanh toán' WHERE madh = ?", [orderId]);
 
-        // Gửi real-time cho tất cả
-        io.emit('payment update', { orderId: orderId, status: 'Đã thanh toán' });
-    });
+    //     // Gửi real-time cho tất cả
+    //     io.emit('payment update', { orderId: orderId, status: 'Đã thanh toán' });
+    // });
 
 
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
 });
+
+
+app.use(express.json());
+
+app.post('/payment_update', (req, res) => {
+    const { orderId } = req.body;
+    if (!orderId) {
+        return res.status(400).send({ message: "Missing orderId" });
+    }
+
+    console.log(`Thanh toán thành công đơn hàng: ${orderId}`);
+
+    io.emit('payment update', { orderId });
+
+    res.send({ message: "Payment update emitted" });
+});
+
 
 server.listen(3000, () => {
     console.log('Server running on http://localhost:3000');

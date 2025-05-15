@@ -241,6 +241,27 @@
             }
         }
 
+        // đơn hàng theo khách hàng 
+        public function donhang_kh($matk){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "SELECT DISTINCT dh.*, kh.tenkh, kh.sdt, kh.diachi
+                            FROM donhang dh
+                            LEFT JOIN chitietdh ct ON dh.madh = ct.madh
+                            LEFT JOIN khachhang kh ON dh.makh = kh.makh
+                            where matk = $matk";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
         //phân công nhân viên
         public function phancong_tudong($madh, $manv){
             $p = new Ketnoi();
@@ -284,13 +305,13 @@
         
 
         // tạo đơn hàng
-        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $shipping_fee, $thanhtoan){
+        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $shipping_fee, $thuho, $nguoitratien, $hinhthuctt, $thanhtoan){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, shipping_fee, thanhtoan)
-                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $shipping_fee, N'$thanhtoan')";
+                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, shipping_fee, thuho, nguoitratien, hinhthuctt, thanhtoan)
+                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $shipping_fee, $thuho, N'$nguoitratien', N'$hinhthuctt', N'$thanhtoan')";
                 $rs = $con->query($sql);
                 if($rs){
                     $id = $con->insert_id;
@@ -340,15 +361,32 @@
             }
         }
         
+        // cập nhật thanh toán
+        public function capnhat_thanhtoan($madh, $thanhtoan){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            if($con){
+                $sql = "UPDATE donhang SET thanhtoan = ? WHERE madh = ?";
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param("si", $thanhtoan, $madh);
+                $stmt->execute();
+                $p->dongketnoi($con);
+                return true;
+            } else {
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
 
         // tạo chi tiết đơn hàng
-        public function taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){
+        public function taochitietdh($madh, $tenhang, $soluong, $trongluong){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into chitietdh(madh, tenhang, soluong, donvitinh, dongia)
-                        values($madh, N'$tenhang', $soluong, N'$dvi', $gia)";
+                $sql = "insert into chitietdh(madh, tenhang, soluong, trongluong)
+                        values($madh, N'$tenhang', $soluong, N'$trongluong')";
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;

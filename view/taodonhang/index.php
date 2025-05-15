@@ -178,7 +178,8 @@ input, select, textarea {
                     <label>Phí Giao Hàng (VNĐ)</label>
                     <input type="text" id="shipping_fee" name="shipping_fee" readonly>
                 </div>
-                <button type="button" onclick="calculateDistance()" class="btn">🔎 Tính Khoảng Cách & Phí Ship</button>
+                
+                <!-- <button type="button" onclick="calculateDistance()" class="btn">🔎 Tính Khoảng Cách & Phí Ship</button> -->
             </div>
 
             <!-- Card thông tin sản phẩm -->
@@ -196,20 +197,29 @@ input, select, textarea {
                         </div>
                         <div class="form-group">
                             <label>Trọng Lượng</label>
-                            <input type="text" name="txtdvi[]" placeholder="Nhập trọng lượng" required>
+                            <input type="text" name="txttrongluong[]" placeholder="Nhập trọng lượng" required>
                         </div>
-                        <div class="form-group">
-                            <label>Thu Hộ</label>
-                            <input type="number" name="txtgia[]" placeholder="Nhập tiền thu hộ" required>
-                        </div>
+                        
                     </div>
                 </div>
                 <button type="button" onclick="addProduct()" class="btn">Thêm sản phẩm</button>
                 <div class="form-group">
+                            <label>Thu Hộ</label>
+                            <input type="number" name="txtthuho" placeholder="Nhập tiền thu hộ" >
+                </div>
+                <div class="form-group">
+                    <label>Người trả tiền</label>
+                    <select name="nguoitratien" required>
+                        <option value="Người gửi">Người gửi trả tiền</option>
+                        <option value="Người nhận">Người nhận trả tiền</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Hình Thức Thanh Toán</label>
                     <select name="payment_method" required>
-                        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                        <option value="Transfer">Chuyển khoản</option>
+                        <option value="tienmat">Tiền mặt</option>
+                        <option value="chuyenkhoan">Chuyển khoản</option>
                     </select>
                 </div>
             </div>
@@ -394,7 +404,7 @@ async function calculateDistance() {
 
 
 function calculateShippingFee(distance) {
-    const rate = 10000; // 10.000 VNĐ/km
+    const rate = 5000; // 5.000 VNĐ/km
     return Math.round(distance * rate);
 }
 
@@ -411,34 +421,34 @@ if (isset($_POST["btntaodh"])) {
     $sdtnn = $_POST["txtsdtnn"];
     $diachinn = $_POST["txtdiachinn"];
     $distance = $_POST["distance"];
-    $shipping_fee = $_POST["shipping_fee"];
+    // $shipping_fee = $_POST["shipping_fee"];
+    $shipping_fee = 30;
     $tinhtranghd = 'Chờ lấy';
+    $nguoitra = $_REQUEST["nguoitratien"];
+    $hinhthuctt = $_REQUEST["payment_method"];
     $thanhtoan = 'Chưa thanh toán';
-    $tongtien = $shipping_fee;
+    $thuho = $_REQUEST["txtthuho"];
 
     // Cập nhật thông tin người dùng
     $p->get_capnhatkh($makh, $tenng, $sdtng, $diaching);
     
     // Tạo đơn hàng
-    $tao = $p->get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtranghd, $tongtien, $shipping_fee, $thanhtoan);
+    $tao = $p->get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtranghd, $shipping_fee, $thuho, $nguoitra, $hinhthuctt, $thanhtoan);
     
     if ($tao) {
         // Lặp qua các sản phẩm và lưu vào chi tiết đơn hàng
         foreach ($_POST["txtsp"] as $index => $tensp) {
             $sl = $_POST["txtsl"][$index];
-            $dvi = $_POST["txtdvi"][$index];
-            $gia = $_POST["txtgia"][$index];
+            $tl = $_POST["txttrongluong"][$index];
             
-            $thanhtien = $sl * $gia;
-            $tongtien += $thanhtien;
-            $p->get_taochitietdh($tao, $tensp, $sl, $dvi, $gia);
+            $p->get_taochitietdh($tao, $tensp, $sl, $tl);
         }
         
         // Cập nhật tổng tiền cho đơn hàng
-        $p->get_capnhatdh($tao, $tongtien);
+        // $p->get_capnhatdh($tao, $tongtien);
 
         // Điều hướng tới trang thanh toán hoặc thông báo
-        if ($_POST['payment_method'] == "Transfer") {
+        if ($_POST['payment_method'] == "chuyenkhoan") {
             echo "<script>window.location.href='view/thanh_toan/payment.php?madh={$tao}'</script>";
         } else {
             echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng'); window.location.href='customer_home.php';</script>";

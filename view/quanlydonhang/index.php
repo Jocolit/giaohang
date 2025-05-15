@@ -133,7 +133,9 @@ h2 {
                 <th>Khách Hàng</th>
                 <th>Trạng Thái</th>
                 <th>Ngày Đặt</th>
+                <th>Ship</th>
                 <th>Tổng Tiền</th>
+                <th>Thanh Toán</th>
                 <th>Hành Động</th>
             </tr>
         </thead>
@@ -160,7 +162,8 @@ h2 {
                         <td>'.$row["tenkh"].'</td>
                         <td><span class="status '.$statusClass.'">'.$row["tinhtrangdh"].'</span></td>
                         <td>'.$row["ngaydat"].'</td>
-                        <td>'.$row["tongtien"].'</td>
+                        <td>'.$row["thuho"].'</td>
+                        <td>'.$row["thanhtoan"].'</td>
                         <td><a href="dashboard_admin.php?madh='.$row["madh"].'" class="btn-view">Xem chi tiết</a></td>
                     </tr>
                 ';

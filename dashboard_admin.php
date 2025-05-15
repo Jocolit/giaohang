@@ -213,7 +213,7 @@ session_start();
     </div>
     <a href="#">🏬 Quản lý kho</a>
     <a href="#">💰 Quản lý COD</a>
-    <a href="#">📊 Báo cáo thống kê</a>
+    <a href="dashboard_admin.php?baocao">📊 Báo cáo thống kê</a>
     <a href="javascript:void(0);" onclick="openAdminChatbox()">📩 Tin nhắn</a>
 
 
@@ -253,6 +253,8 @@ session_start();
             include_once("view/quanlydonhang/index.php");
         elseif(isset($_REQUEST["sua"]))
             include_once("view/capnhatnv/index.php");
+        elseif(isset($_REQUEST["baocao"]))
+            include_once("view/baocao/index.php");
     ?>
 
 </div>

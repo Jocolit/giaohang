@@ -1,37 +1,77 @@
 <?php
-session_start();
-$orderId = $_GET['madh'] ?? 0;
-if (!$orderId) {
-    die('Không tìm thấy đơn hàng');
+
+include_once("control/c_dangnhap.php");
+require_once("libs/phpqrcode/qrlib.php");
+$p = new C_dangnhap();
+
+if (!isset($_GET['madh'])) {
+    die("Thiếu mã đơn hàng");
 }
 
-// Link Ngrok (bạn chỉ cần thay 1 dòng này mỗi lần restart Ngrok)
-$ngrokUrl = "https://cf84-115-78-5-154.ngrok-free.app"; // <--- chỉnh lại URL thực tế của bạn
+$madh = intval($_GET['madh']);
+
+// Lấy thông tin đơn hàng từ DB
+$con = $p->get_dsdonhang($madh);
+if ($con) {
+    $order = $con->fetch_assoc();
+} else {
+    die("Đơn hàng không tồn tại");
+}
+
+// Tạo dữ liệu QR code (ví dụ: bạn có thể tùy chỉnh theo nội dung thanh toán thực tế)
+$qrData = "PAYMENT|ORDER_ID:$madh|AMOUNT:".$order['tongtien']."|ACCOUNT:123456789|BANK:Ngân hàng ABC";
+
+// Thư mục lưu file QR code tạm
+$tmpDir = "tmp/";
+if (!file_exists($tmpDir)) {
+    mkdir($tmpDir, 0777, true);
+}
+$filename = $tmpDir . "order_" . $madh . ".png";
+
+// Tạo QR code
+QRcode::png($qrData, $filename, QR_ECLEVEL_L, 6);
+
+if (isset($_POST['pay'])) {
+    // Cập nhật trạng thái đơn hàng sang "Đã thanh toán"
+    $p->get_capnhat_thanhtoan($madh, "Đã thanh toán");
+
+    // Gửi yêu cầu tới server Node.js để phát sự kiện realtime
+    $ch = curl_init("http://localhost:3000/payment_update");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["orderId" => $madh]));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    echo "<script>alert('Thanh toán thành công!'); window.location.href='customer_home.php';</script>";
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Thanh Toán Đơn Hàng</title>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="../../js/socket_payment.js"></script>
+    <meta charset="UTF-8" />
+    <title>Thanh toán đơn hàng #<?= $madh ?></title>
     <style>
-        body { text-align: center; padding: 30px; font-family: 'Segoe UI', sans-serif; }
-        img { width: 300px; margin: 20px auto; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f7f7f7; padding: 20px; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; }
+        img { width: 250px; height: 250px; }
+        button { margin-top: 20px; padding: 12px 25px; background: #3498db; border: none; color: white; font-size: 18px; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #2980b9; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Thanh toán đơn hàng #<?= $madh ?></h2>
+        <p>Số tiền: <strong><?= number_format($order['tongtien'], 0, ",", ".") ?> VNĐ</strong></p>
+        <p>Vui lòng quét mã QR dưới đây để thanh toán chuyển khoản:</p>
+        <img src="tmp/order_<?= $madh ?>.png" alt="QR Code thanh toán" />
 
-<h2>Quét QR để thanh toán</h2>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=<?= $ngrokUrl ?>/giaohang/view/thanh_toan/success.php?madh=<?= $orderId ?>" alt="QR Thanh Toán">
-
-<p>Vui lòng quét QR bằng điện thoại</p>
-
-<script>
-const orderId = <?= $orderId ?>;
-startFakePayment(orderId);  // nếu cần test auto thì dùng, nếu ko thì bỏ
-</script>
-
+        <form method="post">
+            <button type="submit" name="pay">Thanh toán thành công</button>
+        </form>
+    </div>
 </body>
 </html>

@@ -229,7 +229,7 @@
             <div class="order-details">
                 <p>Số điện thoại: '.$rr["sdtnn"].'</p>
                 <p>Địa chỉ: '.$rr["diachinn"].'</p>
-                <p>COD: '.$rr["cod"].'</p>
+                <p>COD: '.$rr["thuho"].'</p>
             </div>
             <div class="status-btn">
                 <form method="POST" style="display: inline;">
