@@ -449,7 +449,7 @@ if (isset($_POST["btntaodh"])) {
 
         // Điều hướng tới trang thanh toán hoặc thông báo
         if ($_POST['payment_method'] == "chuyenkhoan") {
-            echo "<script>window.location.href='view/thanh_toan/payment.php?madh={$tao}'</script>";
+            echo "<script>window.location.href='customer_home.php?madh={$tao}'</script>";
         } else {
             echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng'); window.location.href='customer_home.php';</script>";
         }

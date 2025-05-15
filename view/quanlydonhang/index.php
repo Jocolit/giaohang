@@ -133,8 +133,10 @@ h2 {
                 <th>Khách Hàng</th>
                 <th>Trạng Thái</th>
                 <th>Ngày Đặt</th>
-                <th>Ship</th>
-                <th>Tổng Tiền</th>
+                <th>Phí Giao Hàng</th>
+                <th>Tiền Thu Hộ</th>
+                <th>Người Thanh Toán</th>
+                <th>Hình thức thanh toán</th>
                 <th>Thanh Toán</th>
                 <th>Hành Động</th>
             </tr>
@@ -162,7 +164,10 @@ h2 {
                         <td>'.$row["tenkh"].'</td>
                         <td><span class="status '.$statusClass.'">'.$row["tinhtrangdh"].'</span></td>
                         <td>'.$row["ngaydat"].'</td>
+                        <td>'.$row["shipping_fee"].'</td>
                         <td>'.$row["thuho"].'</td>
+                        <td>'.$row["nguoitratien"].'</td>
+                        <td>'.$row["hinhthuctt"].'</td>
                         <td>'.$row["thanhtoan"].'</td>
                         <td><a href="dashboard_admin.php?madh='.$row["madh"].'" class="btn-view">Xem chi tiết</a></td>
                     </tr>

@@ -14,12 +14,13 @@ $madh = intval($_GET['madh']);
 $con = $p->get_dsdonhang($madh);
 if ($con) {
     $order = $con->fetch_assoc();
+    $tongtien = $order["shipping_fee"] + $order["thuho"];
 } else {
     die("Đơn hàng không tồn tại");
 }
 
 // Tạo dữ liệu QR code (ví dụ: bạn có thể tùy chỉnh theo nội dung thanh toán thực tế)
-$qrData = "PAYMENT|ORDER_ID:$madh|AMOUNT:".$order['tongtien']."|ACCOUNT:123456789|BANK:Ngân hàng ABC";
+$qrData = "PAYMENT|ORDER_ID:$madh|AMOUNT:".$tongtien."|ACCOUNT:123456789|BANK:Ngân hàng ABC";
 
 // Thư mục lưu file QR code tạm
 $tmpDir = "tmp/";
@@ -65,7 +66,7 @@ if (isset($_POST['pay'])) {
 <body>
     <div class="container">
         <h2>Thanh toán đơn hàng #<?= $madh ?></h2>
-        <p>Số tiền: <strong><?= number_format($order['tongtien'], 0, ",", ".") ?> VNĐ</strong></p>
+        <p>Số tiền: <strong><?= number_format($tongtien, 0, ",", ".") ?> VNĐ</strong></p>
         <p>Vui lòng quét mã QR dưới đây để thanh toán chuyển khoản:</p>
         <img src="tmp/order_<?= $madh ?>.png" alt="QR Code thanh toán" />
 
