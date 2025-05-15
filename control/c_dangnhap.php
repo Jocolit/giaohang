@@ -144,6 +144,19 @@
                 return false;
         }
 
+        // danh sách đơn hàng theo khách hàng
+        public function get_donhang_kh($matk){
+            $p = new M_dangnhap();
+            $con = $p-> donhang_kh($matk);
+            if($con){
+                if($con->num_rows>0)
+                    return $con;
+                else
+                    return 0;
+            }else
+                return false;
+        }
+
         // phân công nhân viên
         public function get_phancong_tudong($madh, $manv){
             $p = new M_dangnhap();
@@ -193,6 +206,11 @@
             return $p->capnhat_trangthai($madh, $trangthai);
         }
         
+        // cập nhật thanh toán
+        public function get_capnhat_thanhtoan($madh, $thanhtoan){
+            $p = new M_dangnhap();
+            return $p->capnhat_thanhtoan($madh, $thanhtoan);
+        }
 
         // tạo chi tiết đơn hàng
         public function get_taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){

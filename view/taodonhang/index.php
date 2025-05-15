@@ -194,7 +194,7 @@ if($con){
             // echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng');</script>";
             // Xử lý theo phương thức thanh toán
             if ($_POST['payment_method'] == "Transfer") {
-                echo "<script>window.location.href='view/thanh_toan/payment.php?madh={$tao}'</script>";
+                echo "<script>window.location.href='customer_home.php?madh={$tao}'</script>";
             } else {
                 echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng');</script>";
             }

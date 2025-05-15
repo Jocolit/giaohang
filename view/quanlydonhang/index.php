@@ -134,6 +134,7 @@ h2 {
                 <th>Trạng Thái</th>
                 <th>Ngày Đặt</th>
                 <th>Tổng Tiền</th>
+                <th>Thanh Toán</th>
                 <th>Hành Động</th>
             </tr>
         </thead>
@@ -161,6 +162,7 @@ h2 {
                         <td><span class="status '.$statusClass.'">'.$row["tinhtrangdh"].'</span></td>
                         <td>'.$row["ngaydat"].'</td>
                         <td>'.$row["tongtien"].'</td>
+                        <td>'.$row["thanhtoan"].'</td>
                         <td><a href="dashboard_admin.php?madh='.$row["madh"].'" class="btn-view">Xem chi tiết</a></td>
                     </tr>
                 ';

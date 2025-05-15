@@ -109,6 +109,10 @@ if($con){
 <?php
     if(isset($_REQUEST["taodh"]))
         include_once("view/taodonhang/index.php");
+    elseif(isset($_REQUEST["tracuu"]))
+        include_once("view/tracuudonhang/index.php");
+    elseif(isset($_REQUEST["madh"]))
+        include_once("view/thanh_toan/payment.php");
     else{
 
 ?>

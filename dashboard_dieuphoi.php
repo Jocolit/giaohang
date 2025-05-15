@@ -88,11 +88,13 @@
 <body>
 
 <div class="sidebar">
-    <h2>Điều phối</h2>
+    <h2><a href="dashboard_dieuphoi.php">Điều phối</a></h2>
     <a href="dashboard_dieuphoi.php?dsdh">📋 Danh sách đơn hàng</a>
     <a href="#">🧍‍♂️ Phân công shipper</a>
     <a href="#">💸 Quản lý COD</a>
     <a href="#">📊 Báo cáo hiệu suất</a>
+    <a href="javascript:void(0);" onclick="openAdminChatbox()">📩 Tin nhắn</a>
+
     <div class="logout">
         <a href="dashboard_dieuphoi.php?dangxuat">Đăng xuất</a>
     </div>
@@ -131,6 +133,6 @@
     if(isset($_REQUEST["dangxuat"]))
         include_once("view/dangxuat/index.php");
 ?>
-
+<?php include_once("view/chatbox/embed_admin.php"); ?>
 </body>
 </html>

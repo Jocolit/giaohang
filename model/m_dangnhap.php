@@ -241,6 +241,27 @@
             }
         }
 
+        // đơn hàng theo khách hàng 
+        public function donhang_kh($matk){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "SELECT DISTINCT dh.*, kh.tenkh, kh.sdt, kh.diachi
+                            FROM donhang dh
+                            LEFT JOIN chitietdh ct ON dh.madh = ct.madh
+                            LEFT JOIN khachhang kh ON dh.makh = kh.makh
+                            where matk = $matk";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
         //phân công nhân viên
         public function phancong_tudong($madh, $manv){
             $p = new Ketnoi();
@@ -340,6 +361,23 @@
             }
         }
         
+        // cập nhật thanh toán
+        public function capnhat_thanhtoan($madh, $thanhtoan){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con->set_charset("utf8");
+            if($con){
+                $sql = "UPDATE donhang SET thanhtoan = ? WHERE madh = ?";
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param("si", $thanhtoan, $madh);
+                $stmt->execute();
+                $p->dongketnoi($con);
+                return true;
+            } else {
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
 
         // tạo chi tiết đơn hàng
         public function taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){
