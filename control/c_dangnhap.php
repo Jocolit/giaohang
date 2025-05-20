@@ -175,9 +175,9 @@
         }
         
         // tạo đơn hàng
-        public function get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan){
+        public function get_taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $shipping_fee, $thuho, $nguoitratien, $hinhthuctt, $thanhtoan){
             $p = new M_dangnhap();
-            $con = $p-> taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan);
+            $con = $p-> taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $shipping_fee, $thuho, $nguoitratien, $hinhthuctt, $thanhtoan);
             if($con){
                 if($con)
                     return $con;
@@ -213,9 +213,9 @@
         }
 
         // tạo chi tiết đơn hàng
-        public function get_taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){
+        public function get_taochitietdh($madh, $tenhang, $soluong, $trongluong){
             $p = new M_dangnhap();
-            $con = $p-> taochitietdh($madh, $tenhang, $soluong, $dvi, $gia);
+            $con = $p-> taochitietdh($madh, $tenhang, $soluong, $trongluong);
             if($con){
                 if($con)
                     return $con;
@@ -242,6 +242,19 @@
         public function get_taokhachhang($ten, $sdt, $dc, $hinh, $matk){
             $p = new M_dangnhap();
             $con = $p-> taokhachhang($ten, $sdt, $dc, $hinh, $matk);
+            if($con){
+                if($con)
+                    return $con;
+                else
+                    return 0;
+            }else
+                return false;
+        }
+
+         // cập nhật khách hàng
+         public function get_capnhatkh($makh,$ten, $sdt, $dc){
+            $p = new M_dangnhap();
+            $con = $p-> capnhatkh($makh,$ten, $sdt, $dc);
             if($con){
                 if($con)
                     return $con;

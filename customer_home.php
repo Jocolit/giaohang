@@ -52,7 +52,7 @@ if($con){
 
         .container {
             padding: 30px;
-            max-width: 800px;
+            max-width: 1500px;
             margin: auto;
         }
 

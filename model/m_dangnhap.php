@@ -305,13 +305,13 @@
         
 
         // tạo đơn hàng
-        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $tongtien, $cod, $thanhtoan){
+        public function taodonhang($makh, $ngaydat, $tennn, $sdtnn, $diachinn, $tinhtrangdh, $shipping_fee, $thuho, $nguoitratien, $hinhthuctt, $thanhtoan){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, tongtien, cod, thanhtoan)
-                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $tongtien, $cod, N'$thanhtoan')";
+                $sql = "insert into donhang(makh, ngaydat, tennn, sdtnn, diachinn, tinhtrangdh, shipping_fee, thuho, nguoitratien, hinhthuctt, thanhtoan)
+                        values($makh, '$ngaydat', N'$tennn', '$sdtnn', N'$diachinn', N'$tinhtrangdh', $shipping_fee, $thuho, N'$nguoitratien', N'$hinhthuctt', N'$thanhtoan')";
                 $rs = $con->query($sql);
                 if($rs){
                     $id = $con->insert_id;
@@ -380,13 +380,13 @@
         }
 
         // tạo chi tiết đơn hàng
-        public function taochitietdh($madh, $tenhang, $soluong, $dvi, $gia){
+        public function taochitietdh($madh, $tenhang, $soluong, $trongluong){
             $p = new Ketnoi();
             $con = $p->ketnoi();
             $con -> set_charset("utf8");
             if($con){
-                $sql = "insert into chitietdh(madh, tenhang, soluong, donvitinh, dongia)
-                        values($madh, N'$tenhang', $soluong, N'$dvi', $gia)";
+                $sql = "insert into chitietdh(madh, tenhang, soluong, trongluong)
+                        values($madh, N'$tenhang', $soluong, N'$trongluong')";
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;
@@ -426,6 +426,22 @@
             if($con){
                 $sql = "insert into khachhang(tenkh, sdt, diachi, hinhanh, matk)
                         values(N'$ten', '$sdt', N'$dc', '$hinh', $matk)";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
+        // Cập nhật khách hàng
+         public function capnhatkh($makh,$ten, $sdt, $dc){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            if($con){
+                $sql = "update khachhang set tenkh='$ten', sdt='$sdt', diachi='$dc' where makh='$makh'";
                 $rs = $con->query($sql);
                 $p->dongketnoi($con);
                 return $rs;
