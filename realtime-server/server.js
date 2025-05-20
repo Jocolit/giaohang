@@ -1,13 +1,15 @@
+// Import thư viện
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const mysql = require('mysql2');
 
+// Khởi tạo ứng dụng Express, HTTP server và Socket.IO server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, { cors: { origin: "*" } }); // Cho phép CORS tất cả origin
 
-// Kết nối database
+// Kết nối MySQL
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -15,77 +17,69 @@ const db = mysql.createConnection({
     database: "giaohang"
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error("Database connection error:", err);
-    } else {
-        console.log("Database connected successfully!");
-    }
+db.connect(err => {
+    if (err) return console.error("❌ Kết nối DB lỗi:", err);
+    console.log("✅ Đã kết nối database!");
 });
 
-io.on('connection', (socket) => {
-    console.log('Client connected');
+// Middleware parse JSON
+app.use(express.json());
 
-    // Join đúng room khách hàng
-    socket.on('join room', (data) => {
-        const { room } = data;
-        const roomIdString = String(room); // **Sửa đổi:** Chuyển đổi thành chuỗi
-        socket.join(roomIdString);
-        console.log(`Socket joined room: ${roomIdString}`);
+// Sự kiện khi client kết nối tới socket
+io.on('connection', socket => {
+    console.log('⚡ Client kết nối');
 
-        db.query("SELECT user, message FROM chat_messages WHERE room = ? ORDER BY created_at ASC", [roomIdString], (err, results) => {
-            if (!err) {
-                socket.emit('history', results);
-            }
+    // Client join vào một room cụ thể
+    socket.on('join room', ({ room }) => {
+        const roomId = String(room); // Đảm bảo room là chuỗi
+        socket.join(roomId);
+        console.log(`🔗 Đã join room: ${roomId}`);
+
+        // Gửi lại lịch sử tin nhắn cho client vừa join
+        const sql = "SELECT user, message FROM chat_messages WHERE room = ? ORDER BY created_at ASC";
+        db.query(sql, [roomId], (err, results) => {
+            if (!err) socket.emit('history', results);
         });
     });
 
-    socket.on('chat message', (data) => {
-        const { room, user, message } = data;
-        const roomIdString = String(room); // **Sửa đổi:** Chuyển đổi thành chuỗi
+    // Nhận tin nhắn mới từ client
+    socket.on('chat message', ({ room, user, message }) => {
+        const roomId = String(room); // Đảm bảo room là chuỗi
 
-        db.query("INSERT INTO chat_messages (room, user, message) VALUES (?, ?, ?)", [roomIdString, user, message]);
+        // Lưu tin nhắn vào DB
+        const sql = "INSERT INTO chat_messages (room, user, message) VALUES (?, ?, ?)";
+        db.query(sql, [roomId, user, message]);
 
-        console.log("Server phát tin nhắn:", { room: roomIdString, user, message });
-        io.to(roomIdString).emit('chat message', { room: roomIdString, user, message }); // **Sửa đổi:** Phát với room là chuỗi
+        // Phát tin nhắn đến tất cả client trong room đó
+        console.log("📨 Tin nhắn gửi:", { room: roomId, user, message });
+        io.to(roomId).emit('chat message', { room: roomId, user, message });
+
+        // Thông báo admin cập nhật danh sách người dùng
+        io.emit('update user list');
     });
 
-    // ----- Thêm phần QR giả lập thanh toán -----
-
-    // socket.on('payment success', (data) => {
-    //     const { orderId } = data;
-    //     console.log(`Đơn hàng ${orderId} đã thanh toán!`);
-
-    //     // Cập nhật DB
-    //     db.query("UPDATE donhang SET thanhtoan = 'Đã thanh toán' WHERE madh = ?", [orderId]);
-
-    //     // Gửi real-time cho tất cả
-    //     io.emit('payment update', { orderId: orderId, status: 'Đã thanh toán' });
-    // });
-
-
+    // Ngắt kết nối
     socket.on('disconnect', () => {
-        console.log('Client disconnected');
+        console.log('❎ Client ngắt kết nối');
     });
 });
 
-
-app.use(express.json());
-
+// Endpoint POST nhận thông báo thanh toán
 app.post('/payment_update', (req, res) => {
     const { orderId } = req.body;
+
     if (!orderId) {
-        return res.status(400).send({ message: "Missing orderId" });
+        return res.status(400).send({ message: "❗ Thiếu orderId" });
     }
 
-    console.log(`Thanh toán thành công đơn hàng: ${orderId}`);
-
+    // Phát sự kiện thanh toán thành công cho toàn bộ client
+    console.log(`💰 Thanh toán thành công đơn hàng: ${orderId}`);
     io.emit('payment update', { orderId });
 
-    res.send({ message: "Payment update emitted" });
+    res.send({ message: "✅ Đã gửi sự kiện cập nhật thanh toán" });
 });
 
-
+// Khởi động server
 server.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
+    console.log('🚀 Server chạy tại http://localhost:3000');
 });

@@ -254,8 +254,6 @@ session_start();
             include_once("view/themnv/index.php");
         elseif(isset($_REQUEST["qldh"]))
             include_once("view/quanlydonhang/index.php");
-        elseif(isset($_REQUEST["madh"]))
-            include_once("view/chitietdh/index.php");
         elseif(isset($_REQUEST["sua"]))
             include_once("view/capnhatnv/index.php");
         elseif(isset($_REQUEST["baocao"]))

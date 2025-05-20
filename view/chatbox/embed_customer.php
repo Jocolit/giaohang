@@ -1,3 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+.message {
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 75%;
+  margin: 5px 0;
+  display: inline-block;
+  clear: both;
+  word-break: break-word;
+  font-size: 14px;
+}
+
+.message.sent {
+  background-color: #007bff;
+  color: white;
+  float: right;
+  text-align: right;
+}
+
+.message.received {
+  background-color: #f1f1f1;
+  color: black;
+  float: left;
+  text-align: left;
+}
+</style>
+
+</head>
 <?php
 include_once("control/c_dangnhap.php");
 $p = new C_dangnhap();
@@ -11,7 +46,8 @@ if ($con) {
     $customerId = 0;
 }
 ?>
-
+<body>
+    
 <div id="chatbox-popup" style="display:none; position:fixed; bottom:90px; right:20px; width:320px; background:#fff; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden; z-index:999;">
     <div style="background:linear-gradient(to right,#007bff,#00c6ff);color:white;padding:12px 15px;font-weight:bold;">
         💬 Hỗ trợ trực tuyến
@@ -23,9 +59,15 @@ if ($con) {
     </div>
 </div>
 
-<div id="chat-toggle" onclick="toggleChatbox()" style="position:fixed;bottom:20px;right:20px;width:60px;height:60px;background:#007bff;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:1000;">
-    Tư Vấn
+<div id="chat-toggle" onclick="toggleChatbox()" style="position:relative; ...">
+    
+    <span id="customer-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:red; color:white; font-size:10px; padding:2px 6px; border-radius:50%;">!</span>
 </div>
+
+</body>
+</html>
+
+
 
 <script>
 const currentCustomerId = <?= $customerId ?>;

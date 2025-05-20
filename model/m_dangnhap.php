@@ -173,10 +173,11 @@
                     $stmt->bind_param("i", $madh); // "i" cho integer
                 } else {
                     // Lấy tất cả đơn hàng
-                    $sql = "SELECT DISTINCT dh.*, kh.tenkh, kh.sdt, kh.diachi
+                    $sql = "SELECT DISTINCT dh.*, kh.tenkh, kh.sdt, kh.diachi, nv.tennv, nv.sdt as 'sdtnv'
                             FROM donhang dh
                             LEFT JOIN chitietdh ct ON dh.madh = ct.madh
-                            LEFT JOIN khachhang kh ON dh.makh = kh.makh;";
+                            LEFT JOIN khachhang kh ON dh.makh = kh.makh
+                            LEFT JOIN nhanvien nv ON dh.manv = nv.manv;";
                     $stmt = $con->prepare($sql);
                 }
                 
@@ -241,6 +242,8 @@
             }
         }
 
+        // đơn hàng theo nhân viên
+        
         // đơn hàng theo khách hàng 
         public function donhang_kh($matk){
             $p = new Ketnoi();

@@ -4,6 +4,8 @@ const customerId = String(currentCustomerId);
 const customerName = currentUserName;
 let chatboxVisible = false;
 
+let pendingMessages = [];
+
 socket.emit("join room", { room: customerId });
 
 // Load lịch sử chat
@@ -12,43 +14,39 @@ socket.on("history", (messages) => {
     box.innerHTML = "";
     messages.forEach(msg => {
         const div = document.createElement("div");
-        div.innerHTML = `<strong>${msg.user}:</strong> ${msg.message}`;
+        const isSender = (msg.user === customerName);
+        div.className = `message ${isSender ? 'sent' : 'received'}`;
+        div.innerText = msg.message;
         box.appendChild(div);
     });
     box.scrollTop = box.scrollHeight;
 });
 
-// Khi nhận tin nhắn mới
-// socket.on("chat message", (data) => {
-//     console.log("Khách nhận tin nhắn:", data);
-//     console.log("customerId:", customerId);
-//     console.log("data.room:", data.room);
-//     if (customerId === data.room) { // **Sửa đổi:** So sánh chuỗi với chuỗi (===)
-//         const box = document.getElementById("chat-messages");
-//         const div = document.createElement("div");
-//         div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
-//         box.appendChild(div);
-//         box.scrollTop = box.scrollHeight;
-//     } else {
-//         console.log("Tin nhắn mới đến từ room khác:", data.room);
-//     }
-// });
+
+
 socket.on("chat message", (data) => {
     if (customerId === data.room) {
+        const box = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        const isSender = (data.user === customerName);
+        div.className = `message ${isSender ? 'sent' : 'received'}`;
+        div.innerText = data.message;
+
         if (!chatboxVisible) {
+            pendingMessages.push(data);
             const chatToggle = document.getElementById("chat-toggle");
-            chatToggle.innerText = "💬 (" + (chatToggle.innerText.includes("(") ? parseInt(chatToggle.innerText.split("(")[1].split(")")[0]) + 1 : 1) + ") Tư Vấn";
+            chatToggle.innerText = "💬 (" + (chatToggle.innerText.includes("(") ? parseInt(chatToggle.innerText.split("(")[1].split(")")[0]) + 1 : 1) + ") Liên hệ";
             chatToggle.style.backgroundColor = "green";
+            document.getElementById("customer-badge").style.display = "inline-block";
+
         } else {
-            // Hiển thị tin nhắn như bình thường
-            const box = document.getElementById("chat-messages");
-            const div = document.createElement("div");
-            div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
     }
 });
+
+
 
 socket.on('connect', () => {
     console.log('Customer client connected');
@@ -72,17 +70,39 @@ function sendMessage() {
         input.value = "";
     }
 }
+document.getElementById("chat-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+    }
+});
 
 // Toggle chatbox
 function toggleChatbox() {
+    document.getElementById("customer-badge").style.display = "none";
+
     const popup = document.getElementById("chatbox-popup");
     popup.style.display = (popup.style.display === "none") ? "block" : "none";
     chatboxVisible = (popup.style.display === "block");
     if (chatboxVisible) {
         const chatToggle = document.getElementById("chat-toggle");
-        chatToggle.innerText = "Tư Vấn";
+        chatToggle.innerText = "Liên hệ";
         chatToggle.style.backgroundColor = "#007bff";
+
+        // Hiển thị các tin nhắn chờ
+        const box = document.getElementById("chat-messages");
+        pendingMessages.forEach(msg => {
+            const div = document.createElement("div");
+            const isSender = (msg.user === customerName);
+            div.className = `message ${isSender ? 'sent' : 'received'}`;
+            div.innerText = msg.message;
+            box.appendChild(div);
+        });
+
+        box.scrollTop = box.scrollHeight;
+        pendingMessages = [];
     }
+
 }
 socket.on("payment update", (data) => {
     alert(`Đơn hàng ${data.orderId} đã thanh toán thành công!`);

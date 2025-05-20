@@ -7,96 +7,147 @@
     <title>Document</title>
     <style>
 .order-list-container {
-    padding: 30px;
-    background-color: #f4f6f9;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 30px 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 h2 {
-    margin-bottom: 20px;
-    font-size: 28px;
-    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 32px;
+    color: #1f2937;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
 }
 
 .filter-bar {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    gap: 20px;
 }
 
-.filter-bar input {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 45%;
-}
-
+.filter-bar input,
 .filter-bar select {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 45%;
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1.8px solid #cbd5e1;
+    font-size: 16px;
+    color: #334155;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 }
 
 .order-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Tạo khoảng cách giữa các dòng */
 }
 
 .order-table th,
 .order-table td {
-    padding: 12px;
+    padding: 14px 18px;
     text-align: left;
-    border: 1px solid #ddd;
 }
 
 .order-table th {
-    background-color: #34495e;
-    color: white;
-    font-weight: bold;
+    background-color: #2563eb;
+    color: #f9fafb;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
-.order-table td {
-    background-color: white;
+.order-table tr {
+    background-color: #f9fafb;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    transition: background-color 0.25s ease;
+}
+
+.order-table tr:hover {
+    background-color: #e0e7ff;
 }
 
 .status {
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-weight: bold;
-    color: white;
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .waiting {
-    background-color: #f1c40f; /* Màu vàng cho Chờ lấy */
+    background-color: #fbbf24; /* vàng */
+    color: #92400e;
 }
 
 .processing {
-    background-color: #f39c12; /* Màu vàng đậm cho Đang giao */
+    background-color: #f97316; /* cam */
+    color: #7c2d12;
 }
 
 .delivered {
-    background-color: #2ecc71; /* Màu xanh lá cho Đã giao */
+    background-color: #22c55e; /* xanh lá */
+    color: #14532d;
 }
 
 .canceled {
-    background-color: #e74c3c; /* Màu đỏ cho Đã hủy */
+    background-color: #ef4444; /* đỏ */
+    color: #7f1d1d;
 }
 
-
 .btn-view {
-    background-color: #3498db;
+    background-color: #3b82f6;
     color: white;
-    padding: 8px 16px;
-    border-radius: 5px;
+    padding: 5px 15px;
+    border-radius: 8px;
     text-decoration: none;
-    transition: background 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 3px 6px rgb(59 130 246 / 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn-view:hover {
-    background-color: #2980b9;
+    background-color: #2563eb;
+    box-shadow: 0 5px 12px rgb(37 99 235 / 0.6);
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgb(239 68 68 / 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    box-shadow: 0 5px 12px rgb(220 38 38 / 0.6);
+}
+
+.button:active {
+    transform: translateY(2px);
 }
 
     </style>
@@ -136,7 +187,7 @@ h2 {
                 <th>Khách Hàng</th>
                 <th>Trạng Thái</th>
                 <th>Ngày Đặt</th>
-                <th>Tổng Tiền</th>
+                <th>Phí giao hàng</th>
                 <th>Hành Động</th>
             </tr>
         </thead>
@@ -163,8 +214,12 @@ h2 {
                         <td>'.$row["tenkh"].'</td>
                         <td><span class="status '.$statusClass.'">'.$row["tinhtrangdh"].'</span></td>
                         <td>'.$row["ngaydat"].'</td>
-                        <td>'.$row["tongtien"].'</td>
-                        <td><a href="dashboard_admin.php?madh='.$row["madh"].'" class="btn-view">Xem chi tiết</a></td>
+                        <td>'.$row["shipping_fee"].'</td>
+                        <td><a href="dashboard_admin.php?madh='.$row["madh"].'" class="btn-view">Xem chi tiết</a>
+                            <form method="POST" style="display:inline;">
+                                            <button class="button btn-danger" onclick="return confirm(\'Bạn có chắc muốn hủy không?\')" type="submit" name="btnxoadh" value="' . $row["madh"] . '">Hủy</button>
+                                        </form>
+                        </td>
                     </tr>
                 ';
             }
@@ -211,3 +266,27 @@ function filterOrders() {
 
 </body>
 </html>
+<?php
+    if(isset($_REQUEST["btnxoadh"])){
+        
+        $madh = $_REQUEST["btnxoadh"];
+        $ktradh = $p->get_dsdonhang($madh);
+        if($ktradh){
+            $dh = $ktradh->fetch_assoc();
+            if($dh["tinhtrangdh"] === "Chờ lấy"){
+                $tinhtrangdh = "Đã hủy";
+        // kiểm tra nếu trạng thái chờ lấy thì mới cho khách hàng hủy đơn hàng
+        
+                $rs = $p->get_capnhat_trangthai($madh, $tinhtrangdh);
+                if($rs){
+                    echo "<script>alert('Hủy đơn hàng thành công');</script>";
+                    echo '<script>window.location.href="customer_home.php?tracuu"</script>';
+                }
+            }else{
+                echo "<script>alert('Đơn hàng không hủy được');</script>";
+                return;
+            }
+        }
+        
+    }
+?>

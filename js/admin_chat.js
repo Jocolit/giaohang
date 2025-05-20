@@ -6,6 +6,7 @@ let chatDetailVisible = false;
 
 // Khi mở danh sách khách
 function openAdminChatbox() {
+    document.getElementById("admin-badge").style.display = "none";
     document.getElementById("admin-chatbox-full").style.display = "block";
 
     fetch("get_chat_users.php")
@@ -67,30 +68,20 @@ adminSocket.on("history", (messages) => {
     box.innerHTML = "";
     messages.forEach(msg => {
         const div = document.createElement("div");
-        div.innerHTML = `<strong>${msg.user}:</strong> ${msg.message}`;
+        const isSender = (msg.user === "Quản lý");
+        div.className = `message ${isSender ? 'sent' : 'received'}`;
+        div.innerText = msg.message;
         box.appendChild(div);
     });
     box.scrollTop = box.scrollHeight;
 });
 
-// Khi nhận tin nhắn mới
-// adminSocket.on("chat message", (data) => {
-//     console.log("Admin nhận tin nhắn:", data);
-//     console.log("currentRoomId:", currentRoomId);
-//     console.log("data.room:", data.room);
-//     if (currentRoomId === data.room) { // **Sửa đổi:** So sánh chuỗi với chuỗi (===)
-//         const box = document.getElementById("chat-detail-messages");
-//         const div = document.createElement("div");
-//         div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
-//         box.appendChild(div);
-//         box.scrollTop = box.scrollHeight;
-//     } else {
-//         console.log("Tin nhắn mới đến từ room khác:", data.room);
-//     }
-// });
+
 adminSocket.on("chat message", (data) => {
-    if (!chatDetailVisible || currentRoomId !== data.room) {
-        // Hiển thị thông báo (ví dụ: thêm badge)
+    if (document.getElementById("admin-chatbox-full").style.display !== "block" || currentRoomId !== data.room) {
+        document.getElementById("admin-badge").style.display = "inline-block";
+
+        // Thêm badge như cũ
         const chatItem = Array.from(document.getElementById("chat-conversation-list").children)
             .find(item => item.innerHTML.includes(`(${data.room})`));
         if (chatItem && !chatItem.querySelector("span")) {
@@ -104,10 +95,11 @@ adminSocket.on("chat message", (data) => {
             chatItem.appendChild(badge);
         }
     } else {
-        // Hiển thị tin nhắn như bình thường
         const box = document.getElementById("chat-detail-messages");
         const div = document.createElement("div");
-        div.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
+        const isSender = (data.user === "Quản lý");
+        div.className = `message ${isSender ? 'sent' : 'received'}`;
+        div.innerText = data.message;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     }
@@ -135,6 +127,12 @@ function sendAdminMessage() {
         input.value = "";
     }
 }
+document.getElementById("admin-chat-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        sendAdminMessage();
+    }
+});
 
 // Đóng popup
 function closeAdminChatbox() {
@@ -147,4 +145,12 @@ function closeChatDetail() {
 }
 adminSocket.on("payment update", (data) => {
     alert(`Đơn hàng ${data.orderId} đã được thanh toán!`);
+});
+
+// ✅ Khi có tín hiệu từ server yêu cầu cập nhật danh sách người dùng
+adminSocket.on("update user list", () => {
+    const chatBox = document.getElementById("admin-chatbox-full");
+    if (chatBox && chatBox.style.display === "block") {
+        openAdminChatbox();
+    }
 });

@@ -210,6 +210,7 @@ input, select, textarea {
                 <div class="form-group">
                     <label>Người trả tiền</label>
                     <select name="nguoitratien" required>
+                        <option value="" selected disabled>-- Chọn người trả tiền --</option>
                         <option value="Người gửi">Người gửi trả tiền</option>
                         <option value="Người nhận">Người nhận trả tiền</option>
                     </select>
@@ -218,6 +219,7 @@ input, select, textarea {
                 <div class="form-group">
                     <label>Hình Thức Thanh Toán</label>
                     <select name="payment_method" required>
+                        <option value="" selected disabled>-- Chọn phương thức thanh toán --</option>
                         <option value="tienmat">Tiền mặt</option>
                         <option value="chuyenkhoan">Chuyển khoản</option>
                     </select>
@@ -408,6 +410,31 @@ function calculateShippingFee(distance) {
     return Math.round(distance * rate);
 }
 
+// Khi chọn người trả tiền, kiểm tra để ẩn hoặc hiện select hình thức thanh toán
+document.querySelector('select[name="nguoitratien"]').addEventListener('change', function() {
+    const paymentMethodSelect = document.querySelector('select[name="payment_method"]');
+    if (this.value === "Người nhận") {
+        // Nếu chọn Người nhận trả tiền, disable và reset select hình thức thanh toán
+        paymentMethodSelect.value = "";
+        paymentMethodSelect.disabled = true;
+    } else {
+        // Người gửi trả tiền thì cho phép chọn bình thường
+        paymentMethodSelect.disabled = false;
+    }
+});
+
+// Khi load trang, kiểm tra lại lần đầu (nếu có giá trị được chọn)
+window.addEventListener('DOMContentLoaded', function() {
+    const nguoitratienSelect = document.querySelector('select[name="nguoitratien"]');
+    const paymentMethodSelect = document.querySelector('select[name="payment_method"]');
+    if (nguoitratienSelect.value === "Người nhận") {
+        paymentMethodSelect.value = "";
+        paymentMethodSelect.disabled = true;
+    } else {
+        paymentMethodSelect.disabled = false;
+    }
+});
+
 </script>
 
 <?php
@@ -425,9 +452,10 @@ if (isset($_POST["btntaodh"])) {
     $shipping_fee = 30;
     $tinhtranghd = 'Chờ lấy';
     $nguoitra = $_REQUEST["nguoitratien"];
-    $hinhthuctt = $_REQUEST["payment_method"];
+    $hinhthuctt = $_REQUEST['payment_method'] ?? null;
     $thanhtoan = 'Chưa thanh toán';
-    $thuho = $_REQUEST["txtthuho"];
+    $thuho = $_REQUEST['txtthuho'] !== '' ? (float)$_REQUEST['txtthuho'] : 0;
+
 
     // Cập nhật thông tin người dùng
     $p->get_capnhatkh($makh, $tenng, $sdtng, $diaching);
@@ -449,7 +477,7 @@ if (isset($_POST["btntaodh"])) {
 
         // Điều hướng tới trang thanh toán hoặc thông báo
         if ($_POST['payment_method'] == "chuyenkhoan") {
-            echo "<script>window.location.href='view/thanh_toan/payment.php?madh={$tao}'</script>";
+            echo "<script>window.location.href='customer_home.php?madh={$tao}'</script>";
         } else {
             echo "<script>alert('Đơn hàng đã được tạo chờ shipper đến lấy hàng'); window.location.href='customer_home.php';</script>";
         }

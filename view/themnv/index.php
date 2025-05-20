@@ -93,16 +93,20 @@
     <div class="thêm-nv-header">Thêm Nhân Viên</div>
     <form method="POST" action="">
         <!-- Tên nhân viên -->
-        <div class="thêm-nv-form-group">
-            <label for="name">Tên nhân viên</label>
-            <input type="text" id="name" name="name" required placeholder="Nhập tên nhân viên">
-        </div>
+<div class="thêm-nv-form-group">
+    <label for="name">Tên nhân viên</label>
+    <input type="text" id="name" name="name" required placeholder="Nhập tên nhân viên">
+    <div id="error-name" style="color:red; font-size: 14px; margin-top: 4px;"></div>
+</div>
 
-        <!-- Số điện thoại -->
-        <div class="thêm-nv-form-group">
-            <label for="phone">Số điện thoại</label>
-            <input type="text" id="phone" name="phone" required placeholder="Nhập số điện thoại">
-        </div>
+<!-- Số điện thoại -->
+<div class="thêm-nv-form-group">
+    <label for="phone">Số điện thoại</label>
+    <input type="text" id="phone" name="phone" required placeholder="Nhập số điện thoại">
+    <div id="error-phone" style="color:red; font-size: 14px; margin-top: 4px;"></div>
+</div>
+
+
 
         <!-- Chức vụ -->
         <div class="thêm-nv-form-group">
@@ -150,6 +154,37 @@
         <a href="dashboard_admin.php">Quay lại trang quản lý</a>
     </div>
 </div>
+<script>
+const nameInput = document.getElementById("name");
+const phoneInput = document.getElementById("phone");
+
+const nameError = document.getElementById("error-name");
+const phoneError = document.getElementById("error-phone");
+
+const nameRegex = /^([A-ZÀ-Ỹ][a-zà-ỹ]+)(\s[A-ZÀ-Ỹ][a-zà-ỹ]+)*$/u;
+const phoneRegex = /^0\d{9}$/;
+
+// Kiểm tra tên ngay khi gõ
+nameInput.addEventListener("input", () => {
+    const value = nameInput.value.trim();
+    if (!nameRegex.test(value)) {
+        nameError.textContent = "Tên phải viết hoa chữ cái đầu mỗi từ (VD: Nguyễn Văn A)";
+    } else {
+        nameError.textContent = "";
+    }
+});
+
+// Kiểm tra số điện thoại ngay khi gõ
+phoneInput.addEventListener("input", () => {
+    const value = phoneInput.value.trim();
+    if (!phoneRegex.test(value)) {
+        phoneError.textContent = "Số điện thoại phải có đúng 10 số và bắt đầu bằng số 0";
+    } else {
+        phoneError.textContent = "";
+    }
+});
+</script>
+
 
 </body>
 </html>

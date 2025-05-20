@@ -1,6 +1,7 @@
 <?php
 
 include_once("control/c_dangnhap.php");
+require_once("libs/phpqrcode/qrlib.php");
 $p = new C_dangnhap();
 
 if (!isset($_GET['madh'])) {
@@ -13,24 +14,23 @@ $madh = intval($_GET['madh']);
 $con = $p->get_dsdonhang($madh);
 if ($con) {
     $order = $con->fetch_assoc();
-    $tongtien = $order["shipping_fee"];
+    $tongtien = $order["shipping_fee"] + $order["thuho"];
 } else {
     die("Đơn hàng không tồn tại");
 }
 
-// Thông tin tài khoản ngân hàng
-$bankId = "tcb";                    // Mã ngân hàng Techcombank (vietqr.io chuẩn lowercase)
-$accountNo = "19037480148012";      // Số tài khoản Techcombank
-$accountName = "LY THACH PHUC LOC"; // Tên chủ tài khoản
-$addInfo = "Thanh toán đơn hàng #$madh"; // Nội dung thêm cho QR (tùy chọn)
-$template = "compact2";             // Template mã QR
+// Tạo dữ liệu QR code (ví dụ: bạn có thể tùy chỉnh theo nội dung thanh toán thực tế)
+$qrData = "PAYMENT|ORDER_ID:$madh|AMOUNT:".$tongtien."|ACCOUNT:2403032003|BANK:Ngân hàng ABC";
 
-// Mã hóa URL cho các tham số
-$accountNameEnc = urlencode($accountName);
-$addInfoEnc = urlencode($addInfo);
+// Thư mục lưu file QR code tạm
+$tmpDir = "tmp/";
+if (!file_exists($tmpDir)) {
+    mkdir($tmpDir, 0777, true);
+}
+$filename = $tmpDir . "order_" . $madh . ".png";
 
-// Tạo URL QR Code
-$qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-{$template}.jpg?amount={$tongtien}&addInfo={$addInfoEnc}&accountName={$accountNameEnc}";
+// Tạo QR code
+QRcode::png($qrData, $filename, QR_ECLEVEL_L, 6);
 
 if (isset($_POST['pay'])) {
     // Cập nhật trạng thái đơn hàng sang "Đã thanh toán"
@@ -68,7 +68,7 @@ if (isset($_POST['pay'])) {
         <h2>Thanh toán đơn hàng #<?= $madh ?></h2>
         <p>Số tiền: <strong><?= number_format($tongtien, 0, ",", ".") ?> VNĐ</strong></p>
         <p>Vui lòng quét mã QR dưới đây để thanh toán chuyển khoản:</p>
-        <img src="<?= $qrUrl ?>" alt="QR Code thanh toán" />
+        <img src="tmp/order_<?= $madh ?>.png" alt="QR Code thanh toán" />
 
         <form method="post">
             <button type="submit" name="pay">Thanh toán thành công</button>
