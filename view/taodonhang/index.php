@@ -449,7 +449,7 @@ if (isset($_POST["btntaodh"])) {
     $diachinn = $_POST["txtdiachinn"];
     $distance = $_POST["distance"];
     // $shipping_fee = $_POST["shipping_fee"];
-    $shipping_fee = 30;
+    $shipping_fee = 50000;
     $tinhtranghd = 'Chờ lấy';
     $nguoitra = $_REQUEST["nguoitratien"];
     $hinhthuctt = $_REQUEST['payment_method'] ?? null;
