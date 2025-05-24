@@ -54,12 +54,12 @@ try {
     <meta charset="UTF-8" />
     <title>Thanh toán đơn hàng #<?= htmlspecialchars($madh) ?></title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f7f7f7; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; }
+        /* body { font-family: 'Segoe UI', sans-serif; background: #f7f7f7; padding: 20px; } */
+        .container-payment { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; }
         #payos-embedded {
         width: 100%;       /* Để rộng 100% vùng cha */
         max-width: 500px;  /* Giới hạn tối đa (bạn chỉnh theo ý muốn) */
-        height: 400px;     /* Chiều cao lớn hơn để hiển thị QR to */
+        height: 550px;     /* Chiều cao lớn hơn để hiển thị QR to */
         margin: auto;      /* Canh giữa */
         overflow: visible; /* Không hiển thị thanh cuộn */
         border: none;      /* Nếu có viền thì bỏ */
@@ -69,7 +69,7 @@ try {
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-payment">
         <h2>Thanh toán đơn hàng #<?= htmlspecialchars($madh) ?></h2>
         <p>Số tiền: <strong><?= number_format($tongtien, 0, ",", ".") ?> VNĐ</strong></p>
 
@@ -105,7 +105,7 @@ try {
             const iframe = document.querySelector('#payos-embedded iframe');
             if (iframe) {
                 iframe.style.width = '100%';
-                iframe.style.height = '400px';  // Phù hợp với div cha
+                iframe.style.height = '500px';  // Phù hợp với div cha
                 clearInterval(waitIframe);
             }
             }, 100);

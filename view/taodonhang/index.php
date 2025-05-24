@@ -1,8 +1,8 @@
 <?php
-// session_start();
+// session_start(); // Bạn có thể bật session nếu cần
 include_once("control/c_dangnhap.php");
 $p = new C_dangnhap();
-$con = $p->get_lay1kh($_SESSION["tk"]);
+$con = $p->get_lay1kh($_SESSION["tk"]); // Lấy thông tin khách hàng theo session tk
 if($con){
     $r = $con->fetch_assoc();
     $makh = $r["makh"];
@@ -17,208 +17,202 @@ if($con){
     <meta charset="UTF-8">
     <title>Tạo Đơn Hàng - Hệ thống giao hàng</title>
     <style>
-            body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f7fa;
-}
-
-.container {
-    display: flex;
-    flex-grow: 1;
-    height: 100vh; /* Đảm bảo chiều cao chiếm toàn bộ màn hình */
-    margin: 0;
-    padding: 0;
-}
-
-.sidebar {
-    width: 400px; /* Chiều rộng sidebar có thể thay đổi tùy theo yêu cầu */
-    background-color: #fff;
-    padding: 20px;
-    border-right: 2px solid #ddd;
-    overflow-y: auto;
-    box-sizing: border-box; /* Đảm bảo tính đúng kích thước */
-}
-
-.card {
-    background: white;
-    padding: 25px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.card h3 {
-    margin-top: 0;
-    color: #333;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-}
-
-input, select, textarea {
-    width: 100%;
-    height: 40px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    color: #333;
-}
-
-.btn {
-    background: #3498db;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn:hover {
-    background: #2980b4;
-}
-
-/* Điều chỉnh bản đồ */
-#map {
-    flex-grow: 1; /* Đảm bảo bản đồ chiếm toàn bộ không gian còn lại */
-    height: 100%;
-    min-width: 0; /* Đảm bảo bản đồ không bị nhỏ lại quá */
-    margin: 0;
-    box-sizing: border-box; /* Đảm bảo tính đúng kích thước */
-}
-
-/* Media query cho các màn hình nhỏ */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column; /* Khi màn hình nhỏ, chuyển thành dạng cột */
+    /* Container chính cho toàn bộ trang tạo đơn hàng */
+    .orderform-container {
+        display: flex; /* Dùng flexbox để chia sidebar và map */
+        flex-grow: 1;
+        height: 100vh; /* Chiều cao toàn màn hình */
+        margin: 0;
+        padding: 0;
     }
 
-    .sidebar {
-        width: 100%; /* Sidebar chiếm toàn bộ chiều rộng trên màn hình nhỏ */
+    /* Sidebar bên trái chứa form nhập liệu */
+    .orderform-sidebar {
+        width: 400px; /* Chiều rộng cố định */
+        background-color: #fff;
+        padding: 20px;
+        border-right: 2px solid #ddd;
+        overflow-y: auto; /* Scroll dọc nếu nội dung dài */
+        box-sizing: border-box;
     }
 
-    #map {
-        width: 100%; /* Bản đồ chiếm toàn bộ chiều rộng trên màn hình nhỏ */
-        height: 400px; /* Giảm chiều cao bản đồ khi trên màn hình nhỏ */
+    /* Các card chứa từng phần form */
+    .orderform-card {
+        background: white;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-}
 
+    /* Tiêu đề các card */
+    .orderform-card h3 {
+        margin-top: 0;
+        color: #333;
+    }
 
+    /* Nhóm form từng trường */
+    .orderform-form-group {
+        margin-bottom: 15px;
+    }
 
+    /* Nhãn cho các input */
+    .orderform-form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Input, select, textarea */
+    .orderform-input, .orderform-select, .orderform-textarea {
+        width: 100%;
+        height: 40px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #333;
+        box-sizing: border-box;
+    }
+
+    /* Nút bấm */
+    .orderform-btn {
+        background: #3498db;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Hiệu ứng hover cho nút */
+    .orderform-btn:hover {
+        background: #2980b4;
+    }
+
+    /* Khu vực bản đồ bên phải */
+    #orderform-map {
+        flex-grow: 1; /* Chiếm phần còn lại */
+        height: 100%;
+        min-width: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    /* Responsive cho màn hình nhỏ */
+    @media (max-width: 768px) {
+        .orderform-container {
+            flex-direction: column; /* Chuyển thành cột */
+        }
+
+        .orderform-sidebar {
+            width: 100%;
+        }
+
+        #orderform-map {
+            width: 100%;
+            height: 400px; /* Chiều cao cố định khi nhỏ */
+        }
+    }
     </style>
-    <!-- Link Mapbox -->
-    <!-- Nạp Mapbox GL JS -->
+    <!-- Các link và script Mapbox -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
-    <!-- Nạp CSS của Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet" />
-    <!-- Nạp apbox-gl-geocoder -->
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
-    <!-- Nạp CSS của mapbox-gl-geocoder -->
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
-
 </head>
 
 <body>
-<div class="container">
-    <!-- Sidebar bên trái chứa form nhập liệu -->
-    <div class="sidebar">
-        <form action="" method="POST" id="orderForm">
-            <!-- Card thông tin người gửi -->
-            <div class="card">
+<div class="orderform-container">
+    <!-- Sidebar chứa form -->
+    <div class="orderform-sidebar">
+        <form action="" method="POST" id="orderform-form">
+            <!-- Thông tin người gửi -->
+            <div class="orderform-card">
                 <h3>Thông Tin Người Gửi</h3>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Họ và Tên</label>
-                    <input type="text" name="txttenng" value="<?php echo $r['tenkh']?>" readonly>
+                    <input type="text" name="txttenng" class="orderform-input" value="<?php echo htmlspecialchars($r['tenkh']) ?>" readonly>
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Số Điện Thoại</label>
-                    <input type="text" name="txtsdtng" value="<?php echo $r['sdt']?>" readonly>
+                    <input type="text" name="txtsdtng" class="orderform-input" value="<?php echo htmlspecialchars($r['sdt']) ?>" readonly>
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Địa Chỉ</label>
-                    <!-- Div này sẽ chứa Geocoder -->
+                    <!-- Geocoder Mapbox cho địa chỉ người gửi -->
                     <div id="pickup_geocoder"></div>
-                    <input id="pickup_address" type="text" name="txtdiaching" value="<?php echo $r['diachi']?>" placeholder="Nhập địa chỉ người gửi" >
-                   
+                    <input id="pickup_address" type="text" name="txtdiaching" class="orderform-input" value="<?php echo htmlspecialchars($r['diachi']) ?>" placeholder="Nhập địa chỉ người gửi" >
                 </div>
             </div>
 
-            <!-- Card thông tin người nhận -->
-            <div class="card">
+            <!-- Thông tin người nhận -->
+            <div class="orderform-card">
                 <h3>Thông Tin Người Nhận</h3>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Họ và Tên</label>
-                    <input type="text" name="txttennn" required placeholder="Nhập họ và tên người nhận">
+                    <input type="text" name="txttennn" class="orderform-input" required placeholder="Nhập họ và tên người nhận">
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Số Điện Thoại</label>
-                    <input type="text" name="txtsdtnn" required placeholder="Nhập số điện thoại người nhận">
+                    <input type="text" name="txtsdtnn" class="orderform-input" required placeholder="Nhập số điện thoại người nhận">
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Địa Chỉ</label>
-                    <!-- Div này sẽ chứa Geocoder -->
+                    <!-- Geocoder Mapbox cho địa chỉ người nhận -->
                     <div id="delivery_geocoder"></div>
-                    <input id="delivery_address" type="text" name="txtdiachinn" required placeholder="Nhập địa chỉ giao hàng" >
+                    <input id="delivery_address" type="text" name="txtdiachinn" class="orderform-input" required placeholder="Nhập địa chỉ giao hàng" >
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Khoảng Cách (Km)</label>
-                    <input type="text" id="distance" name="distance" readonly>
+                    <input type="text" id="distance" name="distance" class="orderform-input" readonly>
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Phí Giao Hàng (VNĐ)</label>
-                    <input type="text" id="shipping_fee" name="shipping_fee" readonly>
+                    <input type="text" id="shipping_fee" name="shipping_fee" class="orderform-input" readonly>
                 </div>
-                
-                <!-- <button type="button" onclick="calculateDistance()" class="btn">🔎 Tính Khoảng Cách & Phí Ship</button> -->
+                <button type="button" onclick="calculateDistance()" class="orderform-btn">🔎 Tính Khoảng Cách & Phí Ship</button>
             </div>
 
-            <!-- Card thông tin sản phẩm -->
-            <div class="card">
+            <!-- Thông tin sản phẩm -->
+            <div class="orderform-card">
                 <h3>Thông Tin Sản Phẩm</h3>
                 <div id="products-container">
                     <div class="product-row">
-                        <div class="form-group">
+                        <div class="orderform-form-group">
                             <label>Sản Phẩm</label>
-                            <input type="text" name="txtsp[]" placeholder="Nhập tên sản phẩm" required>
+                            <input type="text" name="txtsp[]" class="orderform-input" placeholder="Nhập tên sản phẩm" required>
                         </div>
-                        <div class="form-group">
+                        <div class="orderform-form-group">
                             <label>Số Lượng</label>
-                            <input type="number" name="txtsl[]" placeholder="Nhập số lượng" required>
+                            <input type="number" name="txtsl[]" class="orderform-input" placeholder="Nhập số lượng" required>
                         </div>
-                        <div class="form-group">
+                        <div class="orderform-form-group">
                             <label>Trọng Lượng</label>
-                            <input type="text" name="txttrongluong[]" placeholder="Nhập trọng lượng" required>
+                            <input type="text" name="txttrongluong[]" class="orderform-input" placeholder="Nhập trọng lượng" required>
                         </div>
-                        
                     </div>
                 </div>
-                <button type="button" onclick="addProduct()" class="btn">Thêm sản phẩm</button>
-                <div class="form-group">
-                            <label>Thu Hộ</label>
-                            <input type="number" name="txtthuho" placeholder="Nhập tiền thu hộ" >
+                <button type="button" onclick="addProduct()" class="orderform-btn">Thêm sản phẩm</button>
+                <div class="orderform-form-group">
+                    <label>Thu Hộ</label>
+                    <input type="number" name="txtthuho" class="orderform-input" placeholder="Nhập tiền thu hộ" >
                 </div>
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Người trả tiền</label>
-                    <select name="nguoitratien" required>
+                    <select name="nguoitratien" class="orderform-select" required>
                         <option value="" selected disabled>-- Chọn người trả tiền --</option>
                         <option value="Người gửi">Người gửi trả tiền</option>
                         <option value="Người nhận">Người nhận trả tiền</option>
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="orderform-form-group">
                     <label>Hình Thức Thanh Toán</label>
-                    <select name="payment_method" required>
+                    <select name="payment_method" class="orderform-select" required>
                         <option value="" selected disabled>-- Chọn phương thức thanh toán --</option>
                         <option value="tienmat">Tiền mặt</option>
                         <option value="chuyenkhoan">Chuyển khoản</option>
@@ -226,12 +220,13 @@ input, select, textarea {
                 </div>
             </div>
 
-            <button type="submit" class="btn" name="btntaodh">🚀 Tạo Đơn Hàng</button>
+            <!-- Nút tạo đơn hàng -->
+            <button type="submit" class="orderform-btn" name="btntaodh">🚀 Tạo Đơn Hàng</button>
         </form>
     </div>
 
-    <!-- Map phần bên phải -->
-    <div id="map"></div>
+    <!-- Bản đồ bên phải -->
+    <div id="orderform-map"></div>
 </div>
 
 <script>
@@ -240,7 +235,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicGh1Y2xvYyIsImEiOiJjbWFtMWwwcWcwZzVwMmtxMHJoN
 
 // Tạo bản đồ
 const map = new mapboxgl.Map({
-    container: 'map',
+    container: 'orderform-map',
     style: 'mapbox://styles/mapbox/streets-v11',
     center: [106.6297, 10.8231], // Tọa độ Hồ Chí Minh
     zoom: 12
@@ -249,39 +244,33 @@ const map = new mapboxgl.Map({
 // Thêm điều khiển zoom
 map.addControl(new mapboxgl.NavigationControl());
 
-/// Tạo Geocoder cho người gửi
-  const pickupGeocoder = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken,
-      types: 'address',
-      placeholder: "Nhập địa chỉ người gửi",
-      mapboxgl: mapboxgl
-  });
+// Tạo Geocoder cho người gửi
+const pickupGeocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    types: 'address',
+    placeholder: "Nhập địa chỉ người gửi",
+    mapboxgl: mapboxgl
+});
+document.getElementById('pickup_geocoder').appendChild(pickupGeocoder.onAdd(map));
 
-  document.getElementById('pickup_geocoder').appendChild(pickupGeocoder.onAdd(map));
+// Tạo Geocoder cho người nhận
+const deliveryGeocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    types: 'address',
+    placeholder: "Nhập địa chỉ người nhận",
+    mapboxgl: mapboxgl
+});
+document.getElementById('delivery_geocoder').appendChild(deliveryGeocoder.onAdd(map));
 
-  // Tạo Geocoder cho người nhận
-  const deliveryGeocoder = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken,
-      types: 'address',
-      placeholder: "Nhập địa chỉ người nhận",
-      mapboxgl: mapboxgl
-  });
-
-  document.getElementById('delivery_geocoder').appendChild(deliveryGeocoder.onAdd(map));
-
-  // Đảm bảo rằng marker của người nhận sẽ giữ màu đỏ
 let pickupMarker = null;  // Người gửi (màu xanh)
 let deliveryMarker = null;  // Người nhận (màu đỏ)
 
 // Khi người dùng chọn địa chỉ người gửi
 pickupGeocoder.on('result', function (e) {
     const pickupCoords = e.result.center;
-
-    // Nếu đã có marker người gửi, cập nhật lại tọa độ
     if (pickupMarker) {
         pickupMarker.setLngLat(pickupCoords);
     } else {
-        // Tạo mới marker cho người gửi và thêm vào bản đồ
         pickupMarker = new mapboxgl.Marker({ color: 'blue' })
             .setLngLat(pickupCoords)
             .addTo(map);
@@ -301,10 +290,7 @@ deliveryGeocoder.on('result', function (e) {
     document.getElementById('delivery_address').value = e.result.place_name;
 });
 
-
-
-
-// chuyển địa chỉ chuỗi sang tọa độ
+// Chuyển địa chỉ chuỗi sang tọa độ
 async function getCoordinatesFromAddress(address) {
     const encodedAddress = encodeURIComponent(address);
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${mapboxgl.accessToken}`;
@@ -318,16 +304,14 @@ async function getCoordinatesFromAddress(address) {
         throw new Error("Không tìm thấy tọa độ cho địa chỉ: " + address);
     }
 }
+
 // Hàm tính khoảng cách
 async function calculateDistance() {
-
-   // Kiểm tra xem marker của người gửi và người nhận đã được chọn chưa
     if (!pickupMarker || !deliveryMarker) {
         alert("Vui lòng chọn địa chỉ người gửi và người nhận.");
         return;
     }
 
-      // Lấy tọa độ của người gửi và người nhận
     const pickupCoords = pickupMarker.getLngLat();
     const deliveryCoords = deliveryMarker.getLngLat();
 
@@ -345,26 +329,23 @@ async function calculateDistance() {
 
         if (data.routes && data.routes.length > 0) {
             const distance = data.routes[0].distance / 1000; // mét → km
-            const duration = data.routes[0].duration / 60; // thời gian tính bằng phút
+            const duration = data.routes[0].duration / 60; // phút
             const shippingFee = calculateShippingFee(distance);
 
             document.getElementById('distance').value = distance.toFixed(2);
             document.getElementById('shipping_fee').value = shippingFee;
 
-            // Tính thời gian di chuyển (giờ)
-            const travelTime = duration.toFixed(0); // Thời gian di chuyển (phút)
-            console.log(`Thời gian di chuyển: ${travelTime} phút`);
+            const travelTime = duration.toFixed(0); // phút
 
-            // Hiển thị thời gian di chuyển lên bản đồ
+            // Hiển thị thời gian di chuyển trên bản đồ
             const timeDisplay = new mapboxgl.Popup({ offset: 25 })
                 .setLngLat([(pickupCoords.lng + deliveryCoords.lng) / 2, (pickupCoords.lat + deliveryCoords.lat) / 2])
                 .setHTML(`<b>Thời gian di chuyển: </b>${travelTime} phút`)
                 .addTo(map);
 
-            // --- VẼ ĐƯỜNG ĐI TRÊN BẢN ĐỒ ---
+            // Vẽ đường đi trên bản đồ
             const route = data.routes[0].geometry;
 
-            // Nếu đã có source thì update, chưa có thì add
             if (map.getSource('route')) {
                 map.getSource('route').setData(route);
             } else {
@@ -387,7 +368,8 @@ async function calculateDistance() {
                     }
                 });
             }
-            // Sau khi đã có route (GeoJSON LineString)
+
+            // Điều chỉnh vùng bản đồ vừa với đường đi
             const coordinates = route.coordinates;
             const bounds = new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]);
             for (const coord of coordinates) {
@@ -401,29 +383,48 @@ async function calculateDistance() {
         console.error(error);
         alert("Lỗi khi tính khoảng cách: " + error.message);
     }
-    
 }
-
 
 function calculateShippingFee(distance) {
     const rate = 5000; // 5.000 VNĐ/km
     return Math.round(distance * rate);
 }
 
-// Khi chọn người trả tiền, kiểm tra để ẩn hoặc hiện select hình thức thanh toán
+// Thêm sản phẩm mới
+function addProduct() {
+    const container = document.getElementById('products-container');
+    const productRow = document.createElement('div');
+    productRow.classList.add('product-row');
+
+    productRow.innerHTML = `
+        <div class="orderform-form-group">
+            <label>Sản Phẩm</label>
+            <input type="text" name="txtsp[]" class="orderform-input" placeholder="Nhập tên sản phẩm" required>
+        </div>
+        <div class="orderform-form-group">
+            <label>Số Lượng</label>
+            <input type="number" name="txtsl[]" class="orderform-input" placeholder="Nhập số lượng" required>
+        </div>
+        <div class="orderform-form-group">
+            <label>Trọng Lượng</label>
+            <input type="text" name="txttrongluong[]" class="orderform-input" placeholder="Nhập trọng lượng" required>
+        </div>
+    `;
+    container.appendChild(productRow);
+}
+
+// Khi chọn người trả tiền, ẩn hiện select hình thức thanh toán
 document.querySelector('select[name="nguoitratien"]').addEventListener('change', function() {
     const paymentMethodSelect = document.querySelector('select[name="payment_method"]');
     if (this.value === "Người nhận") {
-        // Nếu chọn Người nhận trả tiền, disable và reset select hình thức thanh toán
         paymentMethodSelect.value = "";
         paymentMethodSelect.disabled = true;
     } else {
-        // Người gửi trả tiền thì cho phép chọn bình thường
         paymentMethodSelect.disabled = false;
     }
 });
 
-// Khi load trang, kiểm tra lại lần đầu (nếu có giá trị được chọn)
+// Kiểm tra trạng thái lúc load trang
 window.addEventListener('DOMContentLoaded', function() {
     const nguoitratienSelect = document.querySelector('select[name="nguoitratien"]');
     const paymentMethodSelect = document.querySelector('select[name="payment_method"]');
@@ -434,7 +435,6 @@ window.addEventListener('DOMContentLoaded', function() {
         paymentMethodSelect.disabled = false;
     }
 });
-
 </script>
 
 <?php
@@ -448,8 +448,7 @@ if (isset($_POST["btntaodh"])) {
     $sdtnn = $_POST["txtsdtnn"];
     $diachinn = $_POST["txtdiachinn"];
     $distance = $_POST["distance"];
-    // $shipping_fee = $_POST["shipping_fee"];
-    $shipping_fee = 50000;
+    $shipping_fee = $_POST["shipping_fee"];
     $tinhtranghd = 'Chờ lấy';
     $nguoitra = $_REQUEST["nguoitratien"];
     $hinhthuctt = $_REQUEST['payment_method'] ?? null;
@@ -472,9 +471,6 @@ if (isset($_POST["btntaodh"])) {
             $p->get_taochitietdh($tao, $tensp, $sl, $tl);
         }
         
-        // Cập nhật tổng tiền cho đơn hàng
-        // $p->get_capnhatdh($tao, $tongtien);
-
         // Điều hướng tới trang thanh toán hoặc thông báo
         if ($_POST['payment_method'] == "chuyenkhoan") {
             echo "<script>window.location.href='customer_home.php?madh={$tao}'</script>";
@@ -485,12 +481,4 @@ if (isset($_POST["btntaodh"])) {
         echo "<script>alert('Vui lòng tạo lại đơn hàng');</script>";
     }
 }
-
-
 ?>
-</body>
-</html>
-
-
-
-
