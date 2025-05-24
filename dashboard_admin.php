@@ -211,8 +211,6 @@ session_start();
             
         </div>
     </div>
-    <a href="#">🏬 Quản lý kho</a>
-    <a href="#">💰 Quản lý COD</a>
     <a href="dashboard_admin.php?baocao">📊 Báo cáo thống kê</a>
     <a href="javascript:void(0);" onclick="openAdminChatbox()" style="position: relative;">
   📩 Tin nhắn
@@ -254,7 +252,7 @@ session_start();
             include_once("view/themnv/index.php");
         elseif(isset($_REQUEST["qldh"]))
             include_once("view/quanlydonhang/index.php");
-        elseif(isset($_REQUEST["madh"]))
+        elseif(isset($_REQUEST["madhct"]))
             include_once("view/chitietdh/index.php");
         elseif(isset($_REQUEST["sua"]))
             include_once("view/capnhatnv/index.php");

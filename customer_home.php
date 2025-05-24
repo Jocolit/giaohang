@@ -140,11 +140,14 @@ if($con){
     </div>
     <!-- Header End -->
 </header>
+
 <?php
      if(isset($_REQUEST["taodh"]))
         include_once("view/taodonhang/index.php");
     elseif(isset($_REQUEST["tracuu"]))
         include_once("view/tracuudonhang/index.php");
+    elseif(isset($_REQUEST["madhct"]))
+        include_once("view/chitietdh/index.php");
     elseif(isset($_REQUEST["madh"]))
         include_once("view/thanh_toan/payment.php");
     elseif (isset($_REQUEST['dichvu'])) {
@@ -162,6 +165,9 @@ if($con){
         echo "Dịch vụ không tồn tại.";
     }
     }
+
+    elseif(isset($_REQUEST["capnhatkh"]))
+        include_once("view/capnhatkh/index.php");
     else{
 ?>
 <main>
@@ -288,6 +294,15 @@ if($con){
                 </div>
             </div>
         </div>
+=======
+
+    <div class="card">
+        <h3>Thông tin cá nhân</h3>
+        <p><strong>Họ và tên:</strong> <?= $r["tenkh"] ?></p>
+        <p><strong>Địa chỉ:</strong> <?= $r["diachi"] ?></p>
+        <p><strong>Số điện thoại:</strong> <?= $r["sdt"] ?></p>
+        <a href="?capnhatkh" class="btn">Sửa thông tin cá nhân</a>
+>>>>>>> Stashed changes
     </div>
     <!-- Categories Area End -->
     <!--? About Area Start -->
@@ -668,6 +683,7 @@ if($con){
 
     if(isset($_REQUEST["dangxuat"]))
         include_once("view/dangxuat/index.php");
+    
 ?>
 
 <footer>

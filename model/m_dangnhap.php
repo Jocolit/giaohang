@@ -189,7 +189,28 @@
                 echo 'Lỗi kết nối';
                 return false;
             }
-        }        
+        }
+
+        // lấy theo mã đơn hàng những thứ liên quan
+        public function laydonhang($madh){
+            $p = new Ketnoi();
+            $con = $p->ketnoi();
+            $con -> set_charset("utf8");
+            
+            if($con){
+                $sql = "select * from donhang dh 
+                        join khachhang kh on dh.makh=kh.makh 
+                        join chitietdh ct on dh.madh = ct.madh
+                        where dh.madh = $madh";
+                $rs = $con->query($sql);
+                $p->dongketnoi($con);
+                return $rs;
+            }else{
+                echo "Lỗi kết nối";
+                return false;
+            }
+        }
+
 
         // danh sách đơn hàng chưa được phân công
         public function dsdonhangpc(){

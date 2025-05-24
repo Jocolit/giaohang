@@ -83,7 +83,7 @@
         $loaitk = 3; // mã loại tk của Khách hàng 
         $tendn = $_REQUEST["dktendn"];
         $sdt = $_REQUEST["dksdt"];
-        $mk = $_REQUEST["dkmk"];
+        $mk = md5($_REQUEST["dkmk"]);
         $nl = $_REQUEST["dknhaplai"];
         $mota = "Sử dụng cho khách hàng";
 

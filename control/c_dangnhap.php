@@ -119,6 +119,19 @@
                 return false;
         }
 
+        // lấy theo mã đơn hàng tất cả
+        public function get_laydonhang($madh){
+            $p = new M_dangnhap();
+            $con = $p-> laydonhang($madh);
+            if($con){
+                if($con->num_rows>0)
+                    return $con;
+                else
+                    return 0;
+            }else
+                return false;
+        }
+
         // đơn hàng theo nhân viên
         public function get_donhangnvlay($manv){
             $p = new M_dangnhap();

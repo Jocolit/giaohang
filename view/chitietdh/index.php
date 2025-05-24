@@ -90,43 +90,69 @@
         }
     </style>
 </head>
+
+<?php
+    include_once("control/c_dangnhap.php");
+    $p = new C_dangnhap();
+    if(isset($_REQUEST["madhct"])){
+        $donhang = [];
+        $dssp = [];
+        $madh = $_REQUEST["madhct"];
+        $con = $p->get_laydonhang($madh);
+        if($con){
+            while($ctdh = $con->fetch_assoc()){
+                if (empty($donhang)) {
+                    $donhang = $ctdh;
+                }
+                $dssp[] = [
+                    'mactdh' => $ctdh['mactdh'],
+                    'tensp' => $ctdh['tenhang'],
+                    'soluong' => $ctdh['soluong'],
+                    'trongluong' => $ctdh['trongluong']
+                ];
+            }
+           
+
+            }
+        }
+?>
 <body>
 <div class="container">
-    <h1>Chi tiết đơn hàng #1</h1>
+    <h1>Chi tiết đơn hàng <?= $donhang["madh"]?></h1>
 
     <div class="info-row">
         <div class="info-label">Khách hàng:</div>
-        <div class="info-value">Trạng Quỳnh</div>
+        <div class="info-value"><?= $donhang["tenkh"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Ngày đặt:</div>
-        <div class="info-value">2025-04-03</div>
+        <div class="info-value"><?= $donhang["ngaydat"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Trạng thái đơn hàng:</div>
         <div class="info-value">
-            <span class="status delivered">Đã giao</span>
+            <span class="status delivered"><?= $donhang["tinhtrangdh"]?></span>
         </div>
     </div>
     <div class="info-row">
         <div class="info-label">Phí giao hàng:</div>
-        <div class="info-value">0 đ</div>
+        <div class="info-value"><?= $donhang["shipping_fee"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Tiền thu hộ:</div>
-        <div class="info-value">0 đ</div>
+        <div class="info-value"><?= $donhang["thuho"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Người thanh toán:</div>
-        <div class="info-value">Người gửi</div>
+        <div class="info-value"><?= $donhang["nguoitratien"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Hình thức thanh toán:</div>
-        <div class="info-value">Tiền mặt</div>
+        <div class="info-value"><?= $donhang["hinhthuctt"]?></div>
     </div>
     <div class="info-row">
         <div class="info-label">Trạng thái thanh toán:</div>
-        <div class="info-value">Đã thanh toán</div>
+        <div class="info-value"><?= $donhang["thanhtoan"]?></div>
     </div>
 
     <h2>Danh sách sản phẩm</h2>
@@ -136,32 +162,22 @@
                 <th>Mã sản phẩm</th>
                 <th>Tên hàng</th>
                 <th>Số lượng</th>
-                <th>Đơn vị</th>
+                <th>Trọng lượng</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>Bánh xe bò</td>
-                <td>2</td>
-                <td>Cái</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Dùi cui</td>
-                <td>1</td>
-                <td>Cái</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>Quần đùi</td>
-                <td>5</td>
-                <td>Cái</td>
-            </tr>
+            <?php foreach ($dssp as $sp): ?>
+                <tr>
+                    <td><?= htmlspecialchars($sp['mactdh']) ?></td>
+                    <td><?= htmlspecialchars($sp['tensp']) ?></td>
+                    <td><?= htmlspecialchars($sp['soluong']) ?></td>
+                    <td><?= htmlspecialchars($sp['trongluong']) ?></td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
-
-    <a href="dashboard_admin.php?qldh" class="btn-back">← Quay lại danh sách đơn hàng</a>
+    <!-- hàm quay về trang trước -->
+    <a href="javascript:history.back()" class="btn-back">← Quay lại danh sách đơn hàng</a>
 </div>
 </body>
 </html>

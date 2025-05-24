@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Danh sách đơn hàng</title>
     <style>
-       
         .container {
-            max-width: 100%px;
+            max-width: 100%;
             margin: auto;
             background: white;
             border-radius: 10px;
@@ -195,6 +194,11 @@
                 <option value="delivered">Đã giao</option>
                 <option value="canceled">Đã hủy</option>
             </select>
+            <select id="paymentFilter" onchange="filterOrders()">
+                <option value="">Tất cả hình thức</option>
+                <option value="tienmat">Tiền mặt</option>
+                <option value="chuyenkhoan">Chuyển khoản</option>
+            </select>
         </div>
         <table>
             <thead>
@@ -240,7 +244,7 @@
                                 <td data-label="Hình thức thanh toán">' . htmlspecialchars($row["hinhthuctt"]) . '</td>
                                 <td data-label="Thanh Toán">' . htmlspecialchars($row["thanhtoan"]) . '</td>
                                 <td data-label="Hành Động">
-                                    <a href="dashboard_admin.php?madh=' . urlencode($row["madh"]) . '" class="btn-view">Xem chi tiết</a>
+                                    <a href="?madhct=' . urlencode($row["madh"]) . '" class="btn-view">Xem chi tiết</a>
                                     <form method="POST" style="display:inline;">
                                         <button class="button btn-danger" onclick="return confirm(\'Bạn có chắc muốn hủy không?\')" type="submit" name="btnxoadon" value="' . htmlspecialchars($row["madh"]) . '">Hủy</button>
                                     </form>
@@ -253,100 +257,87 @@
             </tbody>
         </table>
         <div id="pagination" style="margin-top: 20px; text-align: center;"></div>
-
     </div>
 
     <script>
+        const rowsPerPage = 10;
+        let currentPage = 1;
+
+        function showPage(page) {
+            const rows = document.querySelectorAll(".order-row");
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            currentPage = page;
+
+            rows.forEach((row, index) => {
+                if (index >= (page - 1) * rowsPerPage && index < page * rowsPerPage) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            renderPagination(totalPages, page);
+        }
+
+        function renderPagination(totalPages, currentPage) {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            for(let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.innerText = i;
+                btn.style.margin = "0 5px";
+                btn.style.padding = "5px 10px";
+                btn.style.border = "1px solid #2563eb";
+                btn.style.backgroundColor = i === currentPage ? "#2563eb" : "white";
+                btn.style.color = i === currentPage ? "white" : "#2563eb";
+                btn.style.borderRadius = "5px";
+                btn.style.cursor = "pointer";
+
+                btn.onclick = () => showPage(i);
+                pagination.appendChild(btn);
+            }
+        }
+
         function filterOrders() {
             const searchValue = document.getElementById("search").value.toLowerCase();
             const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+            const paymentFilter = document.getElementById("paymentFilter").value.toLowerCase();
             const rows = document.querySelectorAll(".order-row");
 
             rows.forEach(row => {
                 const orderId = row.cells[0].textContent.toLowerCase();
                 const customerName = row.cells[1].textContent.toLowerCase();
                 const statusClass = row.cells[2].querySelector(".status").classList[1];
+                const paymentMethod = row.cells[7].textContent.toLowerCase();
+
                 const matchesSearch = orderId.includes(searchValue) || customerName.includes(searchValue);
                 const matchesStatus = statusFilter === "" || statusClass === statusFilter;
-                row.style.display = matchesSearch && matchesStatus ? "" : "none";
+                const matchesPayment = paymentFilter === "" || paymentMethod.includes(paymentFilter);
+
+                row.style.display = (matchesSearch && matchesStatus && matchesPayment) ? "" : "none";
             });
+
+            const filteredRows = Array.from(rows).filter(row => row.style.display !== "none");
+            rows.forEach(row => row.style.display = "none");
+            filteredRows.slice(0, rowsPerPage).forEach(row => row.style.display = "");
+
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+            renderPagination(totalPages, 1);
         }
 
-        const rowsPerPage = 10;
-let currentPage = 1;
-
-function showPage(page) {
-    const rows = document.querySelectorAll(".order-row");
-    const totalRows = rows.length;
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
-    currentPage = page;
-
-    rows.forEach((row, index) => {
-        if (index >= (page - 1) * rowsPerPage && index < page * rowsPerPage) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-
-    renderPagination(totalPages, page);
-}
-
-function renderPagination(totalPages, currentPage) {
-    const pagination = document.getElementById("pagination");
-    pagination.innerHTML = "";
-
-    for(let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.innerText = i;
-        btn.style.margin = "0 5px";
-        btn.style.padding = "5px 10px";
-        btn.style.border = "1px solid #2563eb";
-        btn.style.backgroundColor = i === currentPage ? "#2563eb" : "white";
-        btn.style.color = i === currentPage ? "white" : "#2563eb";
-        btn.style.borderRadius = "5px";
-        btn.style.cursor = "pointer";
-
-        btn.onclick = () => showPage(i);
-        pagination.appendChild(btn);
-    }
-}
-
-function filterOrders() {
-    const searchValue = document.getElementById("search").value.toLowerCase();
-    const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
-    const rows = document.querySelectorAll(".order-row");
-
-    rows.forEach(row => {
-        const orderId = row.cells[0].textContent.toLowerCase();
-        const customerName = row.cells[1].textContent.toLowerCase();
-        const statusClass = row.cells[2].querySelector(".status").classList[1];
-        const matchesSearch = orderId.includes(searchValue) || customerName.includes(searchValue);
-        const matchesStatus = statusFilter === "" || statusClass === statusFilter;
-        row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
-    });
-
-    // Khi filter xong, reset phân trang, chỉ hiện trang 1 các kết quả filter được
-    const filteredRows = Array.from(rows).filter(row => row.style.display !== "none");
-    // Ẩn tất cả
-    rows.forEach(row => row.style.display = "none");
-    // Hiện 10 đầu tiên của kết quả filter
-    filteredRows.slice(0, rowsPerPage).forEach(row => row.style.display = "");
-
-    // Tính tổng trang dựa trên filteredRows
-    const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
-    renderPagination(totalPages, 1);
-}
-
-// Khi trang tải xong, hiển thị trang 1
-window.onload = () => {
-    showPage(1);
-};
-
+        window.onload = () => {
+            showPage(1);
+        };
     </script>
 </body>
 </html>
+
 <?php
+    include_once("control/c_dangnhap.php");
+    $p = new C_dangnhap();
+
     if(isset($_REQUEST["btnxoadon"])){
         $madh = $_REQUEST["btnxoadon"];
         $tinhtrang = "Đã hủy";

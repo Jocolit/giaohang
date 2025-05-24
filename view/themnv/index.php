@@ -197,7 +197,7 @@ phoneInput.addEventListener("input", () => {
     if(isset($_REQUEST["btnthem"])){
         
         $tendn = $_REQUEST["username"];
-        $mk = $_REQUEST["password"];
+        $mk = md5($_REQUEST["password"]);
         $mota = "Nhân viên";
         $loaitk = 2;
         if($dstk){

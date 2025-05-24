@@ -35,7 +35,7 @@ $request = [
     'orderCode' => $madh,
     'amount' => $tongtien,
     'description' => "Thanh toán đơn hàng #$madh",
-    'returnUrl' => 'https://yourwebsite.com/success.php',  // Đổi URL phù hợp
+    'returnUrl' => 'http://localhost:8088/giaohang/customer_home.php?tracuu',  // Đổi URL phù hợp
     'cancelUrl' => 'https://yourwebsite.com/cancel.php',   // Đổi URL phù hợp
 ];
 
@@ -78,7 +78,7 @@ try {
         <script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
         <script>
           const payOSConfig = {
-            RETURN_URL: "https://yourwebsite.com/success.php",
+            RETURN_URL: "http://localhost:8088/giaohang/customer_home.php?tracuu",
             ELEMENT_ID: "payos-embedded",
             CHECKOUT_URL: "<?= $checkoutUrl ?>",
             embedded: true,

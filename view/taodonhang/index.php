@@ -482,3 +482,8 @@ if (isset($_POST["btntaodh"])) {
     }
 }
 ?>
+
+</body>
+</html>
+
+ 

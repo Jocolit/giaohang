@@ -96,7 +96,7 @@
 <body>
 <br> <br>
 <div class="thêm-nv-container">
-    <div class="thêm-nv-header">Thêm Nhân Viên</div>
+    <div class="thêm-nv-header">Cập nhật thông tin Nhân Viên</div>
 
     <form method="POST" action="">
         <!-- Tên nhân viên -->

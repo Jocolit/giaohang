@@ -5,7 +5,7 @@ $p = new C_dangnhap();
 
 if (isset($_REQUEST["btndn"])) {
     $tendn = $_REQUEST["tendn"];
-    $mk = $_REQUEST["password"];
+    $mk = md5($_REQUEST["password"]);
     $con = $p->get_dangnhap($tendn, $mk);
     if ($con == true) {
         $r = $con->fetch_assoc();
