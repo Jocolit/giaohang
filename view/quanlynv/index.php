@@ -9,7 +9,7 @@ if (isset($_REQUEST["btnxoa"])) {
     $xoa = $p->get_xoanv($manv, $trangthai);
     if ($xoa) {
         echo "<script>alert('Cập nhật thông tin nhân viên thành công');</script>";
-        echo '<script>window.location.href="dashboard_admin_qlnv.php"</script>';
+        echo '<script>window.location.href="dashboard_admin.php?qlnv"</script>';
         exit;
     }
 }
